@@ -1,0 +1,58 @@
+<script setup lang="ts">
+import {Icon} from "@vicons/utils";
+import {DashboardRound, LogInRound} from "@vicons/material"
+import {NFlex} from "naive-ui";
+import {RouterLink} from 'vue-router';
+import {type Component} from "vue";
+
+type RouterItemType = {
+	icon: Component,
+	to: string;
+	title: string
+}
+
+const routers: RouterItemType[] = [
+	{
+		icon: DashboardRound,
+		to: "/",
+		title: "Dashboard"
+	},
+	{
+		icon: LogInRound,
+		to: "/login",
+		title: "LogIn"
+	}
+];
+</script>
+
+<template>
+	<n-flex vertical>
+		<RouterLink v-for="(router) in routers" :to="router.to" :title="router.title" :key="router.to" class="router-item">
+			<div style="display: flex; align-items: center; justify-content: center; grid-column: 1 / 2; grid-row: 1 / 2">
+				<Icon :size="24">
+					<component :is="router.icon"></component>
+				</Icon>
+			</div>
+			<p style="font-size: 0.6em; grid-column: 2 / 3; grid-row: 1 / 2">{{router.title}}</p>
+		</RouterLink>
+	</n-flex>
+</template>
+
+<style scoped>
+.router-item {
+	--item-height: 3em;
+	--item-width: 9em;
+
+	height: var(--item-height);
+	width: var(--item-width);
+
+	display: grid;
+	align-items: center;
+	justify-content: center;
+
+	grid-template-rows: 100%;
+	grid-template-columns: var(--item-height) calc(var(--item-width) - var(--item-height));
+
+	border-radius: 4px;
+}
+</style>
