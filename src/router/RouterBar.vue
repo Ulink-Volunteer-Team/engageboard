@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {Icon} from "@vicons/utils";
-import {DashboardRound, LogInRound} from "@vicons/material"
+import {DashboardRound, LogInRound, AccountBoxRound} from "@vicons/material"
 import {NFlex} from "naive-ui";
 import {RouterLink} from 'vue-router';
 import {type Component} from "vue";
@@ -21,6 +21,11 @@ const routers: RouterItemType[] = [
 		icon: LogInRound,
 		to: "/login",
 		title: "LogIn"
+	},
+	{
+		icon: AccountBoxRound,
+		to: "students",
+		title: "Students"
 	}
 ];
 </script>
@@ -54,5 +59,10 @@ const routers: RouterItemType[] = [
 	grid-template-columns: var(--item-height) calc(var(--item-width) - var(--item-height));
 
 	border-radius: 4px;
+
+	text-decoration: none;
+	color: hsla(160, 100%, 37%, 1);
+	transition: 0.4s;
+	padding: 3px;
 }
 </style>

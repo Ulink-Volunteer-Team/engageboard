@@ -45,6 +45,8 @@ export function decodeAes256Password(password: string) {
 export async function encryptAes256(data: string, password: string): Promise<string> {
 	const { key, iv } = decodeAes256Password(password);
 
+	data = data.trim();
+
 	const encoder = new TextEncoder();
 	const dataBuffer = encoder.encode(data);
 
@@ -193,7 +195,7 @@ function hexToBuffer(hex: string): Uint8Array {
 	const length = hex.length / 2;
 	const buffer = new Uint8Array(length);
 	for (let i = 0; i < length; i++) {
-		buffer[i] = parseInt(hex.slice(i * 2, 2), 16);
+		buffer[i] = parseInt(hex.slice(i * 2, (i * 2) + 2), 16);
 	}
 	return buffer;
 }

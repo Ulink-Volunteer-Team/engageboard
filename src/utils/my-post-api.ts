@@ -22,11 +22,13 @@ export function post<T = unknown>(route: string, data: unknown, axiosInstance?: 
 }
 
 export function postAES<T = unknown>(route: string, data: unknown, sessionID: string, sessionKey: string, axiosInstance?: AxiosInstance) {
-	return new Promise((resolve, reject) => {
-		post<string>(route, { session: sessionID, data: encryptAes256(JSON.stringify(data), sessionKey) }, axiosInstance)
+	return new Promise<T>(async (resolve, reject) => {
+		post<{success: boolean, data: string}>(route, { session: sessionID, data: await encryptAes256(JSON.stringify(data), sessionKey) }, axiosInstance)
 			.then(async (rawData) => {
 				try {
-					const parsedData = JSON.parse(await decryptAes256(rawData, sessionKey)) as T;
+					const parsedData = JSON.parse(await decryptAes256(rawData.data, sessionKey)) as T;
+					console.log(parsedData);
+					if(!parsedData) reject("Empty data");
 					resolve(parsedData);
 				}
 				catch (error) {
