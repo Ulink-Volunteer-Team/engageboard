@@ -4,6 +4,8 @@ import { ref } from "vue";
 import { useSessionSocket } from "@/stores/session-socket";
 import { useSessionCredentialStore, clearSessionCredential } from "@/stores/session-credential";
 import { login, getTokenState } from "@/utils/server-apis";
+import { useRouterStore } from "@/stores/router-store";
+import router from "@/router";
 
 const message = useMessage();
 
@@ -14,26 +16,53 @@ const userCredential = ref({
 
 const sessionSocket = useSessionSocket();
 const sessionCredential = useSessionCredentialStore();
+const routerStore = useRouterStore();
 
-if(sessionCredential.isLoggedIn()) {
-	getTokenState(sessionSocket)
-	.then((data) => {
-		if (data.valid) {
-			message.success("Token is still valid");
-		}
-		else {
-			message.error("Token is invalid");
-			clearSessionCredential();
-		}
-	})
-	.catch((error) => {
-		message.error("Fail to get token state: " + String(error));
-	});
+const redirect = () => {
+	const redirectPath = routerStore.redirect;
+	routerStore.redirect = "";
+	router.push(redirectPath || "/");
+}
+
+const afterLogin = () => {
+	setTimeout(() => message.info("Login successful. Hi, " + sessionCredential.userID), 0);
+	sessionCredential.logged = true;
+	redirect();
+}
+
+if (!sessionCredential.logged) {
+	if(sessionCredential.userID && sessionCredential.token) {
+		getTokenState(sessionSocket)
+			.then((data) => {
+				if (data.valid) {
+					console.log("Login successful, using stored token and user id");
+					afterLogin();
+				}
+				else {
+					message.error("Your login has expired. Please log in again.");
+					clearSessionCredential();
+				}
+			})
+			.catch((error) => {
+				message.error("Fail to get token state: " + String(error));
+			});
+	}
+	else if(routerStore.redirect) {
+		message.warning("Please log in first.");
+	}
+} else {
+	router.push(useRouterStore().redirect || "/");
+	useRouterStore().redirect = "";
 }
 
 function localLogin() {
 	login(userCredential.value.userName, userCredential.value.password, sessionSocket, sessionCredential)
-		.then(() => message.info("Login successful. Hi, " + userCredential.value.userName))
+		.then(() => {
+			setTimeout(() => message.info("Login successful. Hi, " + userCredential.value.userName), 0);
+			sessionCredential.logged = true;
+			router.push(useRouterStore().redirect || "/");
+			useRouterStore().redirect = "";
+		})
 		.catch((error) => message.error(String(error)));
 }
 </script>

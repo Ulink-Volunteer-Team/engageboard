@@ -16,13 +16,13 @@ export const useSessionCredentialStore = defineStore('session-credential', () =>
 	const token = ref(storedValue.token || "");
 	const userID = ref(storedValue.userID || "");
 
-	const isLoggedIn = () => token.value !== "";
+	const logged = ref(false);
 
 	watch([token, userID], () => {
 		storage.setItem("token", token.value);
 		storage.setItem("userID", userID.value);
 	}, {deep: true})
-	return {token, userID, isLoggedIn}
+	return {token, userID, logged}
 });
 
 export const clearSessionCredential = async () => {

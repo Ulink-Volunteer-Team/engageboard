@@ -2,10 +2,12 @@
 import RouterBar from "@/router/RouterBar.vue";
 import { NConfigProvider, NMessageProvider, NDialogProvider, NModalProvider } from "naive-ui";
 import { useSessionCredentialStore } from "@/stores/session-credential";
+import router from "./router";
 
 const sessionCredentialStore = useSessionCredentialStore();
 
-if (sessionCredentialStore.isLoggedIn()) {
+if (!sessionCredentialStore.logged) {
+	router.push("/login");
 }
 </script>
 
@@ -16,7 +18,9 @@ if (sessionCredentialStore.isLoggedIn()) {
 				<n-dialog-provider>
 					<div class="app">
 						<RouterBar class="router-bar" />
-						<RouterView class="router-view" />
+						<div class="router-view">
+							<RouterView style="height: 100%; width: 100%;"/>
+						</div>
 					</div>
 				</n-dialog-provider>
 			</n-modal-provider>

@@ -2,7 +2,7 @@
 import { useSessionCredentialStore } from '@/stores/session-credential';
 import router from '@/router';
 
-if (!useSessionCredentialStore().isLoggedIn()) {
+if (!useSessionCredentialStore().logged) {
 	router.push("/login");
 }
 </script>
@@ -12,3 +12,6 @@ if (!useSessionCredentialStore().isLoggedIn()) {
 	<p>Hi {{  useSessionCredentialStore().userID }}</p>
 	<p>something</p>
 </template>
+
+<style scoped>
+</style>

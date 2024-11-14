@@ -8,13 +8,14 @@ import router from '@/router';
 import { type StudentType, getStudentsByFuzzySearch, removeStudent, addStudents, getStudentByID } from "@/utils/server-apis";
 import StudentInfoInput from "@/components/StudentInfoInput.vue";
 import SinglePrompt from "@/components/SinglePrompt.vue";
+import { useRouterStore } from '@/stores/router-store';
 
 const message = useMessage();
 const dialog = useDialog();
 
-if (!useSessionCredentialStore().isLoggedIn()) {
+if (!useSessionCredentialStore().logged) {
+	useRouterStore().redirect = "/students";
 	router.push("/login");
-	setTimeout(() => message.warning("Please log in first"), 0);
 }
 
 const sessionSocket = useSessionSocket();
@@ -48,8 +49,8 @@ watch(searchName, updateSearchResult);
 watch(searchName, updateSearchResult);
 
 const newStudentDialogVisible = ref(false);
-const openDialog = () => newStudentDialogVisible.value = true;
-const closeDialog = () => newStudentDialogVisible.value = false;
+const openNewStudentDialog = () => newStudentDialogVisible.value = true;
+const closeNewStudentDialog = () => newStudentDialogVisible.value = false;
 
 const studentIDSearchDialogVisible = ref(false);
 const openIDSearchDialog = () => studentIDSearchDialogVisible.value = true;
@@ -59,22 +60,30 @@ const addStudentsLocal = (newStudentInfo: StudentType) => {
 	addStudents([newStudentInfo], sessionSocket)
 		.then(() => {
 			updateSearchResult();
-			closeDialog();
+			closeNewStudentDialog();
 		})
 }
 
 const getStudentByIDLocal = (studentID: string) => {
 	getStudentByID(studentID, sessionSocket)
-		.then((result) => {
-			console.log(result);
+		.then(({name}) => {
+			console.log(name);
 			closeIDSearchDialog();
+			if(!name) {
+				closeIDSearchDialog();
+				message.error(`No such student with ID: "${studentID}"`);
+				return;
+			}
 			dialog.success({
 				title: 'Search result',
-				content: `Student with ID "${studentID}" is called "${result.name}"`,
+				content: `Student with ID "${studentID}" is called "${name}"`,
 				positiveText: 'Confirm',
 			})
 		})
-		.catch(() => message.error(`No such student with ID: "${studentID}"`))
+		.catch(() => {
+			closeIDSearchDialog();
+			message.error(`API call failed on getStudentByID`);
+		})
 }
 
 const columns: DataTableColumns<StudentType> = [
@@ -119,7 +128,7 @@ const toolBarItems: Array<{ title: string, icon: Component, onClick: () => void,
 	{
 		title: "Add",
 		icon: PersonAddAlt1Round,
-		onClick: openDialog,
+		onClick: openNewStudentDialog,
 		critical: false
 	},
 	{
@@ -146,10 +155,10 @@ const toolBarItems: Array<{ title: string, icon: Component, onClick: () => void,
 				</n-button>
 			</n-flex>
 		</n-card>
-		<student-info-input v-model:dialog-visible="newStudentDialogVisible" :close-dialog="closeDialog"
-			@student-info-confirmed="addStudentsLocal" />
+		<student-info-input v-model:visible="newStudentDialogVisible"
+			@confirm="addStudentsLocal" />
 		<single-prompt v-model:visible="studentIDSearchDialogVisible" title="Search by ID"
-			prompt="Please input the student ID" :close-dialog="closeIDSearchDialog" @confirmed="getStudentByIDLocal" />
+			prompt="Please input the student ID" @confirmed="getStudentByIDLocal" />
 		<n-empty description="NO DATA" v-if="(searchResult.length === 0) && !loading" />
 		<n-data-table v-else v-model:checked-row-keys="selectedIds" :columns="columns" :data="searchResult"
 			:row-key="row => row.id" :loading="loading" virtual-scroll style="min-height: 100%" flex-height />
