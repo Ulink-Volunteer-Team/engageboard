@@ -27,7 +27,6 @@ export function postAES<T = unknown>(route: string, data: unknown, sessionID: st
 			.then(async (rawData) => {
 				try {
 					const parsedData = JSON.parse(await decryptAes256(rawData.data, sessionKey)) as T;
-					console.log(parsedData);
 					if(!parsedData) reject("Empty data");
 					resolve(parsedData);
 				}

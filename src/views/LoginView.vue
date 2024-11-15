@@ -14,8 +14,8 @@ const userCredential = ref({
 	password: "",
 });
 
-const sessionSocket = useSessionSocket();
-const sessionCredential = useSessionCredentialStore();
+const sessionSocket = await useSessionSocket();
+const sessionCredential = await useSessionCredentialStore();
 const routerStore = useRouterStore();
 
 const redirect = () => {
@@ -32,7 +32,7 @@ const afterLogin = () => {
 
 if (!sessionCredential.logged) {
 	if(sessionCredential.userID && sessionCredential.token) {
-		getTokenState(sessionSocket)
+		getTokenState(sessionSocket, sessionCredential)
 			.then((data) => {
 				if (data.valid) {
 					console.log("Login successful, using stored token and user id");
@@ -51,8 +51,8 @@ if (!sessionCredential.logged) {
 		message.warning("Please log in first.");
 	}
 } else {
-	router.push(useRouterStore().redirect || "/");
-	useRouterStore().redirect = "";
+	router.push(routerStore.redirect || "/");
+	routerStore.redirect = "";
 }
 
 function localLogin() {

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {Icon} from "@vicons/utils";
-import {DashboardRound, LogInRound, AccountBoxRound} from "@vicons/material"
+import {DashboardRound, LogInRound, AccountBoxRound, EventNoteRound} from "@vicons/material"
 import {NFlex} from "naive-ui";
 import {RouterLink} from 'vue-router';
 import {type Component} from "vue";
@@ -26,6 +26,11 @@ const routers: RouterItemType[] = [
 		icon: AccountBoxRound,
 		to: "students",
 		title: "Students"
+	},
+	{
+		icon: EventNoteRound,
+		to: "recruitments",
+		title: "Recruitments",
 	}
 ];
 </script>

@@ -6,7 +6,7 @@ export type StudentType = {
 	id: string
 }
 
-export const login = async (id: string, password: string, sessionSocket: ReturnType<typeof useSessionSocket>, sessionCredential: ReturnType<typeof useSessionCredentialStore>) => {
+export const login = async (id: string, password: string, sessionSocket: Awaited<ReturnType<typeof useSessionSocket>>, sessionCredential: Awaited<ReturnType<typeof useSessionCredentialStore>>) => {
 	return new Promise<void>(async (resolve, reject) => {
 		sessionSocket.postAES<{ token: string }>("/sign-in", {
 			id: id,
@@ -23,10 +23,10 @@ export const login = async (id: string, password: string, sessionSocket: ReturnT
 	});
 }
 
-export const getStudentsByFuzzySearch = async (search: string, sessionSocket: ReturnType<typeof useSessionSocket>) => {
+export const getStudentsByFuzzySearch = async (search: string, sessionSocket: Awaited<ReturnType<typeof useSessionSocket>>, sessionCredential: Awaited<ReturnType<typeof useSessionCredentialStore>>) => {
 	return new Promise<StudentType[]>(async (resolve, reject) => {
 		sessionSocket.postAES<{ students: StudentType[] }>("/get-students-by-fuzzy-search", {
-			token: useSessionCredentialStore().token,
+			token: sessionCredential.token,
 			name: search
 		})
 			.then((data) => {
@@ -38,10 +38,10 @@ export const getStudentsByFuzzySearch = async (search: string, sessionSocket: Re
 	});
 };
 
-export const addStudents = async (students: StudentType[], sessionSocket: ReturnType<typeof useSessionSocket>) => {
+export const addStudents = async (students: StudentType[], sessionSocket: Awaited<ReturnType<typeof useSessionSocket>>, sessionCredential: Awaited<ReturnType<typeof useSessionCredentialStore>>) => {
 	return new Promise<void>(async (resolve, reject) => {
 		sessionSocket.postAES<{ success: boolean }>("/add-students", {
-			token: useSessionCredentialStore().token,
+			token: sessionCredential.token,
 			students: students
 		}).then(() => {
 			resolve();
@@ -51,10 +51,10 @@ export const addStudents = async (students: StudentType[], sessionSocket: Return
 	})
 }
 
-export const removeStudent = async (id: string[], sessionSocket: ReturnType<typeof useSessionSocket>) => {
+export const removeStudent = async (id: string[], sessionSocket: Awaited<ReturnType<typeof useSessionSocket>>, sessionCredential: Awaited<ReturnType<typeof useSessionCredentialStore>>) => {
 	return new Promise<void>(async (resolve, reject) => {
 		sessionSocket.postAES<{ success: boolean }>("/remove-students", {
-			token: useSessionCredentialStore().token,
+			token: sessionCredential.token,
 			ids: id
 		})
 			.then(() => {
@@ -66,10 +66,10 @@ export const removeStudent = async (id: string[], sessionSocket: ReturnType<type
 	});
 };
 
-export const getStudentByID = async (id: string, sessionSocket: ReturnType<typeof useSessionSocket>) => {
+export const getStudentByID = async (id: string, sessionSocket: Awaited<ReturnType<typeof useSessionSocket>>, sessionCredential: Awaited<ReturnType<typeof useSessionCredentialStore>>) => {
 	return new Promise<{name: string}>(async (resolve, reject) => {
 		sessionSocket.postAES<{ name: string }>("/get-student-by-id", {
-			token: useSessionCredentialStore().token,
+			token: sessionCredential.token,
 			id: id
 		})
 			.then((data) => {
@@ -83,15 +83,11 @@ export const getStudentByID = async (id: string, sessionSocket: ReturnType<typeo
 	});
 }
 
-export const getTokenState = async (sessionSocket: ReturnType<typeof useSessionSocket>) => {
+export const getTokenState = async (sessionSocket: Awaited<ReturnType<typeof useSessionSocket>>, sessionCredential: Awaited<ReturnType<typeof useSessionCredentialStore>>) => {
 	return new Promise<{ valid: boolean }>(async (resolve, reject) => {
-		console.log({
-			tokenToCheck: useSessionCredentialStore().token,
-			userID: useSessionCredentialStore().userID
-		})
 		sessionSocket.postAES<{ valid: boolean }>("/get-token-state", {
-			tokenToCheck: useSessionCredentialStore().token,
-			userID: useSessionCredentialStore().userID
+			tokenToCheck: sessionCredential.token,
+			userID: sessionCredential.userID
 		})
 			.then((data) => {
 				resolve(data);

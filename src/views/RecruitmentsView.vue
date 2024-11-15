@@ -7,18 +7,15 @@ const routerStore = useRouterStore();
 const sessionCredential = await useSessionCredentialStore();
 
 if (!sessionCredential.logged) {
-	routerStore.redirect = "/";
+	routerStore.redirect = "/recruitments";
 	router.push("/login");
 }
 </script>
 
 <template>
-	<div>
-		<h1>Home</h1>
-		<p>Hi {{  sessionCredential.userID }}</p>
-		<p>something</p>
-	</div>
+	<div>NOT IMPLEMENTED YET</div>
 </template>
 
 <style scoped>
+
 </style>

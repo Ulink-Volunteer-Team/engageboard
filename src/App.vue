@@ -3,12 +3,15 @@ import RouterBar from "@/router/RouterBar.vue";
 import { NConfigProvider, NMessageProvider, NDialogProvider, NModalProvider } from "naive-ui";
 import { useSessionCredentialStore } from "@/stores/session-credential";
 import router from "./router";
+import { onMounted } from "vue";
 
-const sessionCredentialStore = useSessionCredentialStore();
+onMounted(async () => {
+	const sessionCredentialStore = await useSessionCredentialStore();
 
-if (!sessionCredentialStore.logged) {
-	router.push("/login");
-}
+	if (!sessionCredentialStore.logged) {
+		router.push("/login");
+	}
+});
 </script>
 
 <template>
@@ -19,7 +22,9 @@ if (!sessionCredentialStore.logged) {
 					<div class="app">
 						<RouterBar class="router-bar" />
 						<div class="router-view">
-							<RouterView style="height: 100%; width: 100%;"/>
+							<Suspense>
+								<RouterView style="height: 100%; width: 100%;" />
+							</Suspense>
 						</div>
 					</div>
 				</n-dialog-provider>

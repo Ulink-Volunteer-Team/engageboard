@@ -12,13 +12,14 @@ import { useRouterStore } from '@/stores/router-store';
 
 const message = useMessage();
 const dialog = useDialog();
+const sessionCredential = await useSessionCredentialStore();
+const sessionSocket = await useSessionSocket();
 
-if (!useSessionCredentialStore().logged) {
+if (!sessionCredential.logged) {
 	useRouterStore().redirect = "/students";
 	router.push("/login");
 }
 
-const sessionSocket = useSessionSocket();
 const searchName = ref<string>("");
 const searchResult = ref<StudentType[]>([]);
 const selectedIds = ref<string[]>([]);
@@ -37,7 +38,7 @@ function updateSearchResult() {
 			loading.value = false;
 			return;
 		}
-		getStudentsByFuzzySearch(value, sessionSocket)
+		getStudentsByFuzzySearch(value, sessionSocket, sessionCredential)
 			.then((result) => searchResult.value = result)
 			.catch((error) => message.error("Fail to search the students: " + String(error).split(":").pop()!.trim()))
 			.finally(() => loading.value = false);
@@ -57,7 +58,7 @@ const openIDSearchDialog = () => studentIDSearchDialogVisible.value = true;
 const closeIDSearchDialog = () => studentIDSearchDialogVisible.value = false;
 
 const addStudentsLocal = (newStudentInfo: StudentType) => {
-	addStudents([newStudentInfo], sessionSocket)
+	addStudents([newStudentInfo], sessionSocket, sessionCredential)
 		.then(() => {
 			updateSearchResult();
 			closeNewStudentDialog();
@@ -65,7 +66,7 @@ const addStudentsLocal = (newStudentInfo: StudentType) => {
 }
 
 const getStudentByIDLocal = (studentID: string) => {
-	getStudentByID(studentID, sessionSocket)
+	getStudentByID(studentID, sessionSocket, sessionCredential)
 		.then(({name}) => {
 			console.log(name);
 			closeIDSearchDialog();
@@ -117,7 +118,7 @@ const toolBarItems: Array<{ title: string, icon: Component, onClick: () => void,
 		icon: DeleteOutlineRound,
 		onClick: () => {
 			loading.value = true;
-			removeStudent(selectedIds.value, sessionSocket)
+			removeStudent(selectedIds.value, sessionSocket, sessionCredential)
 				.then(() => {
 					selectedIds.value = [];
 					updateSearchResult();
