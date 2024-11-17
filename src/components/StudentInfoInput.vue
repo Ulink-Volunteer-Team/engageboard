@@ -15,13 +15,12 @@ const handleConfirm = () => {
 
 <template>
 	<n-modal v-model:show="visible" preset="dialog" title="Add new student" :width="520">
-			<n-flex vertical>
-				<n-input v-model:value="student.id" placeholder="Student ID" />
-				<n-input v-model:value="student.name" placeholder="Student Name" />
-			</n-flex>
-			<template #action>
-				<n-button type="primary" @click="handleConfirm">Add</n-button>
-			</template>
-		</n-modal>
+		<n-flex vertical>
+			<n-input v-model:value="student.id" placeholder="Student ID" />
+			<n-input v-model:value="student.name" placeholder="Student Name" />
+		</n-flex>
+		<template #action>
+			<n-button type="primary" @click="handleConfirm">Add</n-button>
+		</template>
+	</n-modal>
 </template>
-

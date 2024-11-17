@@ -30,3 +30,4 @@ coverage
 *.tsbuildinfo
 
 /public
+server-info.sh

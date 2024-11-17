@@ -26,7 +26,7 @@ const handleCancel = () => {
 </script>
 
 <template>
-	<n-modal v-model:show="visible" preset="dialog" title="Add new student" :width="520" @close="handleCancel">
+	<n-modal v-model:show="visible" preset="dialog" :width="520" @close="handleCancel">
 			<n-flex vertical>
 				<n-p>{{ props.prompt }}</n-p>
 				<n-input v-model:value="input" placeholder="Student ID" />

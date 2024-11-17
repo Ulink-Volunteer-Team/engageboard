@@ -1,11 +1,11 @@
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createMemoryHistory } from 'vue-router';
 import Login from "@/views/LoginView.vue";
 import Home from "@/views/HomeView.vue";
 import Students from "@/views/StudentsView.vue";
 import Recruitments from '@/views/RecruitmentsView.vue';
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createMemoryHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/login',

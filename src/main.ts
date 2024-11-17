@@ -16,9 +16,8 @@ import { useSessionSocket } from './stores/session-socket';
 	app.use(router);
 
 	const serverInfo = await useServerInfo();
-	serverInfo.ip = "83.229.127.91";
-	//serverInfo.ip = "localhost";
-	serverInfo.port = 3000;
+	serverInfo.ip = __SERVER_IP__;
+	serverInfo.port = __SERVER_PORT__;
 
 	const sessionSocket = await useSessionSocket();
 	console.log("ready")
