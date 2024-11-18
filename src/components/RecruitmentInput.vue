@@ -26,7 +26,7 @@ const handleConfirm = () => {
 <template>
 	<n-modal v-model:show="visible" preset="dialog" title="Add new recruitment">
 		<n-form label-placement="top">
-			<n-flex :wrap="false">
+			<n-flex :wrap="false" style="width: 100%;">
 				<n-form-item label="Department" path="department">
 					<n-input v-model:value="recruitment.department" placeholder="Department" />
 				</n-form-item>
@@ -37,7 +37,7 @@ const handleConfirm = () => {
 			<n-form-item label="Event Name" path="eventName">
 				<n-input v-model:value="recruitment.eventName" placeholder="Event Name" />
 			</n-form-item>
-			<n-flex :wrap="false">
+			<n-flex :wrap="false" style="width: 100%;">
 				<n-form-item label="Event Time" path="eventTime">
 					<n-date-picker v-model:value="recruitment.eventTime" type="datetime" />
 				</n-form-item>

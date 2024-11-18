@@ -103,9 +103,10 @@ const getRecruitmentByIDLocal = (id: string) => {
 			}
 
 			if (selectedIds.value.includes(id)) selectedIds.value = selectedIds.value.filter(selectedId => selectedId !== id);
-			selectedIds.value.push(id);
+			selectedIds.value.unshift(id);
 
-			if (!searchResult.value.some(({ id }) => id === recruitment.id)) searchResult.value.push(recruitment);
+			if (searchResult.value.some(({ id }) => id === recruitment.id)) searchResult.value = searchResult.value.filter(({ id }) => id !== recruitment.id);
+			searchResult.value.unshift(recruitment);
 			recruitmentDisplayDialogVisible.value = true;
 		})
 		.catch(() => {
@@ -185,7 +186,8 @@ const toolBarItems: Array<{ title: string, icon: Component, onClick: () => void,
 
 <template>
 	<div class="outer-container">
-		<n-split direction="horizontal" style="height: 100%;" pane2-style="overflow: visible;">
+		<n-split direction="horizontal" style="height: 100%;" pane2-style="overflow: visible;"
+		:max="0.8" :min="0.2" :default-size="0.7">
 			<template #1>
 				<!-- Search Result -->
 				<n-card content-style="padding: 0px;" class="search-result">
@@ -207,7 +209,7 @@ const toolBarItems: Array<{ title: string, icon: Component, onClick: () => void,
 			</template>
 
 			<template #2>
-				<n-split direction="vertical" style="height: 100%;" :max="0.5" :min="0.1" :size="0.3">
+				<n-split direction="vertical" style="height: 100%;" :max="0.5" :min="0.1" :default-size="0.3">
 					<template #1>
 						<!-- filter -->
 						<n-card content-style="overflow: auto; padding: 0px;" class="search-bar" size="small"
@@ -259,10 +261,12 @@ const toolBarItems: Array<{ title: string, icon: Component, onClick: () => void,
 					</template>
 					<template #2>
 						<n-card content-style="padding: 0px; overflow: hidden;" class="search-result">
-							<n-empty v-if="selectedRecruitments.length === 0"
-								description="Please Select a Recruitment" />
+							<div v-if="selectedRecruitments.length === 0 || searchCriteria.length === 0"
+							style="display: grid; place-items: center; height: 100%; width: 100%;">
+								<n-empty description="Please Select a Recruitment or Input Search Criteria" />
+							</div>
 							<div style="padding: 16px; height: 100%; width: 100; overflow: auto;" v-else>
-								<p style="position: sticky; top: -16px; z-index: 9999; background-color: var(--n-color); padding: 8px;">Find {{ selectedRecruitments.length }} Relevant Recruitments</p>
+								<p style="position: sticky; top: -16px; z-index: 9999; background-color: var(--n-color); padding: 8px;">Selected {{ selectedRecruitments.length }} Relevant Recruitments</p>
 								<n-list :show-divider="true" style="overflow: auto">
 									<n-list-item v-for="recruitment in selectedRecruitments" :key="recruitment.id">
 										<div><recruitment-info-display :recruitment="recruitment"/></div>
