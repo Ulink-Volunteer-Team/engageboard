@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { NModal, NInput, NFlex, NButton } from 'naive-ui';
+import type { StudentType } from '@/utils/server-apis';
 
 const emit = defineEmits(["confirm"]);
 const visible = defineModel<boolean>("visible");
 
-const student = ref({ id: '', name: '' });
+const student = ref<StudentType>({ id: '', name: '' });
 
 const handleConfirm = () => {
 	emit('confirm', student.value);

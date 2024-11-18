@@ -22,9 +22,11 @@ onMounted(async () => {
 					<div class="app">
 						<RouterBar class="router-bar" />
 						<div class="router-view">
-							<Suspense>
-								<RouterView style="height: 100%; width: 100%;" />
-							</Suspense>
+							<RouterView style="height: 100%; width: 100%;" v-slot="{ Component }">
+								<Suspense>
+									<component :is="Component" />
+								</Suspense>
+							</RouterView>
 						</div>
 					</div>
 				</n-dialog-provider>
@@ -53,7 +55,7 @@ onMounted(async () => {
 	position: absolute;
 	top: var(--margin);
 	bottom: var(--margin);
-	left: 8em;
+	left: 9em;
 	right: var(--margin);
 }
 </style>

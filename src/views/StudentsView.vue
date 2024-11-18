@@ -47,8 +47,6 @@ function updateSearchResult() {
 
 watch(searchName, updateSearchResult);
 
-watch(searchName, updateSearchResult);
-
 const newStudentDialogVisible = ref(false);
 const openNewStudentDialog = () => newStudentDialogVisible.value = true;
 const closeNewStudentDialog = () => newStudentDialogVisible.value = false;
@@ -58,20 +56,29 @@ const openIDSearchDialog = () => studentIDSearchDialogVisible.value = true;
 const closeIDSearchDialog = () => studentIDSearchDialogVisible.value = false;
 
 const addStudentsLocal = (newStudentInfo: StudentType) => {
+	if (!newStudentInfo.id || !newStudentInfo.name) {
+		message.error("Invalid student info");
+		return;
+	}
 	addStudents([newStudentInfo], sessionSocket, sessionCredential)
 		.then(() => {
 			updateSearchResult();
-			closeNewStudentDialog();
 		})
+		.catch(() => {
+			message.error("API call failed on addStudents");
+		})
+		.finally(() => closeNewStudentDialog());
 }
 
 const getStudentByIDLocal = (studentID: string) => {
+	if (!studentID) {
+		message.error("Student ID cannot be empty");
+		return;
+	}
 	getStudentByID(studentID, sessionSocket, sessionCredential)
-		.then(({name}) => {
+		.then(({ name }) => {
 			console.log(name);
-			closeIDSearchDialog();
-			if(!name) {
-				closeIDSearchDialog();
+			if (!name) {
 				message.error(`No such student with ID: "${studentID}"`);
 				return;
 			}
@@ -82,9 +89,10 @@ const getStudentByIDLocal = (studentID: string) => {
 			})
 		})
 		.catch(() => {
-			closeIDSearchDialog();
+
 			message.error(`API call failed on getStudentByID`);
 		})
+		.finally(() => closeIDSearchDialog());
 }
 
 const columns: DataTableColumns<StudentType> = [
@@ -117,11 +125,19 @@ const toolBarItems: Array<{ title: string, icon: Component, onClick: () => void,
 		title: "Delete",
 		icon: DeleteOutlineRound,
 		onClick: () => {
+			if (selectedIds.value.length === 0) {
+				message.error("Please select at least one student");
+				return;
+			}
 			loading.value = true;
 			removeStudent(selectedIds.value, sessionSocket, sessionCredential)
 				.then(() => {
 					selectedIds.value = [];
 					updateSearchResult();
+				})
+				.catch((error) => {
+					loading.value = false;
+					message.error(String(error))
 				})
 		},
 		critical: true
@@ -143,9 +159,13 @@ const toolBarItems: Array<{ title: string, icon: Component, onClick: () => void,
 
 <template>
 	<div class="outer-container">
+		<!-- Search Bar -->
 		<n-input type="text" v-model:value="searchName" placeholder="Search Name" class="search-bar" />
-		<n-card content-style="padding: 8px;">
+
+		<!-- Tool Bar -->
+		<n-card content-style="padding: 8px;" class="tool-bar">
 			<n-flex justify="left" :align="'center'" style="height: 2em;">
+				<!-- Tool Bar Items -->
 				<n-button strong secondary style="height: 2em; width: 2em;" v-for="item in toolBarItems"
 					:key="item.title" @click="item.onClick" :type="(item.critical ? 'error' : 'primary')">
 					<template #icon>
@@ -156,13 +176,24 @@ const toolBarItems: Array<{ title: string, icon: Component, onClick: () => void,
 				</n-button>
 			</n-flex>
 		</n-card>
-		<student-info-input v-model:visible="newStudentDialogVisible"
-			@confirm="addStudentsLocal" />
+
+		<!-- Search Result -->
+		<n-card content-style="padding: 0px;" class="search-result">
+			<!-- No Data -->
+			<div v-if="(searchResult.length === 0) && !loading"
+				style="display: grid; place-items: center; height: 100%;">
+				<n-empty :description="searchName === '' ? 'Please Input the Search Name' : 'No Data'" />
+			</div>
+			<!-- Data -->
+			<n-data-table v-else v-model:checked-row-keys="selectedIds" :columns="columns" :data="searchResult"
+				:row-key="row => row.id" :loading="loading" virtual-scroll flex-height style="height: 100%;"
+				:bordered="false" />
+		</n-card>
+
+		<!-- Dialog -->
+		<student-info-input v-model:visible="newStudentDialogVisible" @confirm="addStudentsLocal" />
 		<single-prompt v-model:visible="studentIDSearchDialogVisible" title="Search by ID"
 			prompt="Please input the student ID" @confirmed="getStudentByIDLocal" />
-		<n-empty description="NO DATA" v-if="(searchResult.length === 0) && !loading" />
-		<n-data-table v-else v-model:checked-row-keys="selectedIds" :columns="columns" :data="searchResult"
-			:row-key="row => row.id" :loading="loading" virtual-scroll style="min-height: 100%" flex-height />
 	</div>
 </template>
 
@@ -171,6 +202,8 @@ const toolBarItems: Array<{ title: string, icon: Component, onClick: () => void,
 	display: grid;
 	grid-template-columns: 1fr;
 	grid-template-rows: 2em 3em auto;
+	align-content: stretch;
+	align-items: stretch;
 	gap: 1em;
 	padding: 1em;
 
@@ -181,5 +214,22 @@ const toolBarItems: Array<{ title: string, icon: Component, onClick: () => void,
 .search-bar {
 	grid-column: 1 / 2;
 	grid-row: 1 / 2;
+}
+
+.tool-bar {
+	grid-column: 1 / 2;
+	grid-row: 2 / 3;
+	width: 100%;
+}
+
+.search-result {
+	grid-column: 1 / 2;
+	grid-row: 3 / 4;
+	width: 100%;
+	height: 100%;
+
+	display: grid;
+	align-content: stretch;
+	align-items: stretch;
 }
 </style>

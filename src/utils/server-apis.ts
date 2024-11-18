@@ -6,6 +6,16 @@ export type StudentType = {
 	id: string
 }
 
+export type RecruitmentDataType = {
+	id?: string;
+    department: string;
+    formFilledBy: string;
+    eventName: string;
+    eventTime: number;
+    volunteerHours: number;
+    additionalNotes: string;
+}
+
 export const login = async (id: string, password: string, sessionSocket: Awaited<ReturnType<typeof useSessionSocket>>, sessionCredential: Awaited<ReturnType<typeof useSessionCredentialStore>>) => {
 	return new Promise<void>(async (resolve, reject) => {
 		sessionSocket.postAES<{ token: string }>("/sign-in", {
@@ -51,11 +61,11 @@ export const addStudents = async (students: StudentType[], sessionSocket: Awaite
 	})
 }
 
-export const removeStudent = async (id: string[], sessionSocket: Awaited<ReturnType<typeof useSessionSocket>>, sessionCredential: Awaited<ReturnType<typeof useSessionCredentialStore>>) => {
+export const removeStudent = async (ids: string[], sessionSocket: Awaited<ReturnType<typeof useSessionSocket>>, sessionCredential: Awaited<ReturnType<typeof useSessionCredentialStore>>) => {
 	return new Promise<void>(async (resolve, reject) => {
 		sessionSocket.postAES<{ success: boolean }>("/remove-students", {
 			token: sessionCredential.token,
-			ids: id
+			ids: ids
 		})
 			.then(() => {
 				resolve();
@@ -96,4 +106,65 @@ export const getTokenState = async (sessionSocket: Awaited<ReturnType<typeof use
 				reject(String(error));
 			})
 		});
+}
+
+export const getRecruitmentsByFuzzySearch = async (values: string[], fields: ("department" | "formFilledBy" | "eventName")[], sessionSocket: Awaited<ReturnType<typeof useSessionSocket>>, sessionCredential: Awaited<ReturnType<typeof useSessionCredentialStore>>) => {
+	return new Promise<RecruitmentDataType[]>(async (resolve, reject) => {
+		sessionSocket.postAES<{ recruitments: RecruitmentDataType[] }>("/get-recruitments-by-fuzzy-search", {
+			token: sessionCredential.token,
+			fields: fields,
+			values: values
+		})
+			.then((data) => {
+				resolve(data.recruitments);
+			})
+			.catch((error) => {
+				reject(String(error));
+			})
+	});
+}
+
+export const addRecruitments = async (recruitments: RecruitmentDataType[], sessionSocket: Awaited<ReturnType<typeof useSessionSocket>>, sessionCredential: Awaited<ReturnType<typeof useSessionCredentialStore>>) => {
+	return new Promise<void>(async (resolve, reject) => {
+		sessionSocket.postAES<{ success: boolean }>("/add-recruitments", {
+			token: sessionCredential.token,
+			recruitments: recruitments
+		})
+			.then(() => {
+				resolve();
+			})
+			.catch((error) => {
+				reject(String(error).includes("API") ? "Fail to add recruitment: " + error : "Unknown error: " + error.split(":").pop());
+			})
+	});
+}
+
+export const deleteRecruitments = async (ids: string[], sessionSocket: Awaited<ReturnType<typeof useSessionSocket>>, sessionCredential: Awaited<ReturnType<typeof useSessionCredentialStore>>) => {
+	return new Promise<void>(async (resolve, reject) => {
+		sessionSocket.postAES<{ success: boolean }>("/delete-recruitments", {
+			token: sessionCredential.token,
+			ids: ids
+		})
+			.then(() => {
+				resolve();
+			})
+			.catch((error) => {
+				reject(String(error));
+			})
+	});
+}
+
+export const getRecruitmentByID = async (id: string, sessionSocket: Awaited<ReturnType<typeof useSessionSocket>>, sessionCredential: Awaited<ReturnType<typeof useSessionCredentialStore>>) => {
+	return new Promise<RecruitmentDataType>(async (resolve, reject) => {
+		sessionSocket.postAES<{ recruitment: RecruitmentDataType }>("/get-recruitment-by-id", {
+			token: sessionCredential.token,
+			id: id
+		})
+			.then((data) => {
+				resolve(data.recruitment);
+			})
+			.catch((error) => {
+				reject(String(error));
+			})
+	});
 }

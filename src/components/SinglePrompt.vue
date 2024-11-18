@@ -4,7 +4,8 @@ import { NModal, NInput, NFlex, NButton, NP } from 'naive-ui';
 
 const props = defineProps({
 	title: String,
-	prompt: String
+	prompt: String,
+	placeholder: String
 });
 
 const visible = defineModel<boolean>("visible");
@@ -26,10 +27,10 @@ const handleCancel = () => {
 </script>
 
 <template>
-	<n-modal v-model:show="visible" preset="dialog" :width="520" @close="handleCancel">
+	<n-modal v-model:show="visible" preset="dialog" :width="520" @close="handleCancel" :title="props.title">
 			<n-flex vertical>
 				<n-p>{{ props.prompt }}</n-p>
-				<n-input v-model:value="input" placeholder="Student ID" />
+				<n-input v-model:value="input" :placeholder=props.placeholder />
 			</n-flex>
 			<template #action>
 				<n-button type="primary" @click="handleConfirm">Confirm</n-button>

@@ -20,10 +20,11 @@ import { useSessionSocket } from './stores/session-socket';
 	serverInfo.port = __SERVER_PORT__;
 
 	const sessionSocket = await useSessionSocket();
-	console.log("ready")
+	console.log("Session socket initialised, handshaking");
 	sessionSocket.handShake()
 		.then(() => {
 			console.log("Session socket initialised, handshake success");
+			document.getElementById("connecting")!.remove();
 			app.mount('#app');
 		})
 		.catch((error) => {
