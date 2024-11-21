@@ -37,16 +37,17 @@ export const useSessionSocket = async () => {
 
 		function handShake() {
 			return new Promise<void>(async (resolve, reject) => {
-				const { publicKey, privateKey } = await generateRsaKeyPair()
+				const { publicKey, privateKey } = await generateRsaKeyPair();
+				const secure = PostAPI.usingSecureConnection;
 
-				axiosInstance.post("/handshake", { userPublicKey: btoa(publicKey) }, {
+				axiosInstance.post("/handshake", { ...(secure ? {} : { userPublicKey: btoa(publicKey) }) }, {
 					headers: { 'Content-Type': 'application/json' },
 					timeout: 5000,
 				})
 					.then(async (response) => {
 						if (response.data.success) {
 							serverAPIVersion.value = response.data.api_version;
-							({ id: sessionID.value, key: sessionKey.value } = JSON.parse(await decryptRsa(response.data.data, privateKey)));
+							({ id: sessionID.value, key: sessionKey.value } = secure ? response.data.data : JSON.parse(await decryptRsa(response.data.data, privateKey)));
 							encryptionInitialised.value = true;
 							resolve();
 						}

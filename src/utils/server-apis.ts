@@ -83,9 +83,24 @@ export const getStudentByID = async (id: string, sessionSocket: Awaited<ReturnTy
 			id: id
 		})
 			.then((data) => {
-				console.log(data)
 				if(!data) reject("No such student");
 				else resolve(data);
+			})
+			.catch((error) => {
+				reject(String(error));
+			})
+	});
+}
+
+export const getStudentsByIDs = async (ids: string[], sessionSocket: Awaited<ReturnType<typeof useSessionSocket>>, sessionCredential: Awaited<ReturnType<typeof useSessionCredentialStore>>) => {
+	return new Promise<StudentType[]>(async (resolve, reject) => {
+		sessionSocket.postAES<{ students: StudentType[] }>("/get-students-by-ids", {
+			token: sessionCredential.token,
+			ids: ids
+		})
+			.then((data) => {
+				if(!data) reject("No such student");
+				else resolve(data.students);
 			})
 			.catch((error) => {
 				reject(String(error));
@@ -168,3 +183,48 @@ export const getRecruitmentByID = async (id: string, sessionSocket: Awaited<Retu
 			})
 	});
 }
+
+export const getAllRecruitmentInfo = async (sessionSocket: Awaited<ReturnType<typeof useSessionSocket>>, sessionCredential: Awaited<ReturnType<typeof useSessionCredentialStore>>) => {
+	return new Promise<{eventName: string, id: string}[]>(async (resolve, reject) => {
+		sessionSocket.postAES<{ recruitments: {eventName: string, id: string}[] }>("/get-all-recruitment-info", {
+			token: sessionCredential.token
+		})
+			.then((data) => {
+				resolve(data.recruitments);
+			})
+			.catch((error) => {
+				reject(String(error));
+			})
+	});
+}
+
+export const getAllStudentInfo = async (sessionSocket: Awaited<ReturnType<typeof useSessionSocket>>, sessionCredential: Awaited<ReturnType<typeof useSessionCredentialStore>>) => {
+	return new Promise<StudentType[]>(async (resolve, reject) => {
+		sessionSocket.postAES<{ students: StudentType[] }>("/get-all-student-info", {
+			token: sessionCredential.token
+		})
+			.then((data) => {
+				resolve(data.students);
+			})
+			.catch((error) => {
+				reject(String(error));
+			})
+	});
+}
+
+export const getVolunteersIDsByRecruitmentIDs = async (ids: string[], sessionSocket: Awaited<ReturnType<typeof useSessionSocket>>, sessionCredential: Awaited<ReturnType<typeof useSessionCredentialStore>>) => {
+	return new Promise<[string, string[]][]>(async (resolve, reject) => {
+		sessionSocket.postAES<{ volunteers: [string, string[]][] }>("/get-volunteers-by-recruitment", {
+			token: sessionCredential.token,
+			ids: ids
+		})
+			.then((data) => {
+				console.log(data);
+				resolve(data.volunteers);
+			})
+			.catch((error) => {
+				reject(String(error));
+			})
+	});
+}
+

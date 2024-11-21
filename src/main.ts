@@ -1,4 +1,4 @@
-import './assets/main.css';
+import './assets/base.css';
 
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
@@ -16,8 +16,9 @@ import { useSessionSocket } from './stores/session-socket';
 	app.use(router);
 
 	const serverInfo = await useServerInfo();
-	serverInfo.ip = __SERVER_IP__;
-	serverInfo.port = __SERVER_PORT__;
+	serverInfo.hostURL = __HOST_URL__;
+
+	console.log("Server host: " + serverInfo.hostURL);
 
 	const sessionSocket = await useSessionSocket();
 	console.log("Session socket initialised, handshaking");

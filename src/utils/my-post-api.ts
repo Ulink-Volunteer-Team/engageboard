@@ -1,6 +1,8 @@
 import axios, { type AxiosInstance } from 'axios';
 import { encryptAes256, decryptAes256 } from './my-crypto';
 
+export const usingSecureConnection = location.protocol.split(":").shift() === "https" || location.href.split(":")[1].slice(2) === "localhost";
+
 export function post<T = unknown>(route: string, data: unknown, axiosInstance?: AxiosInstance) {
 	if (!axiosInstance) axiosInstance = axios.create();
 	return new Promise<T>((resolve, reject) => {
@@ -23,10 +25,10 @@ export function post<T = unknown>(route: string, data: unknown, axiosInstance?: 
 
 export function postAES<T = unknown>(route: string, data: unknown, sessionID: string, sessionKey: string, axiosInstance?: AxiosInstance) {
 	return new Promise<T>(async (resolve, reject) => {
-		post<{success: boolean, data: string}>(route, { session: sessionID, data: await encryptAes256(JSON.stringify(data), sessionKey) }, axiosInstance)
+		post<{success: boolean, data: string | T}>(route, { session: sessionID, data: usingSecureConnection ? data : encryptAes256(JSON.stringify(data), sessionKey) }, axiosInstance)
 			.then(async (rawData) => {
 				try {
-					const parsedData = JSON.parse(await decryptAes256(rawData.data, sessionKey)) as T;
+					const parsedData = usingSecureConnection ? rawData.data as T : JSON.parse(decryptAes256(rawData.data as string, sessionKey)) as T;
 					if(!parsedData) reject("Empty data");
 					resolve(parsedData);
 				}

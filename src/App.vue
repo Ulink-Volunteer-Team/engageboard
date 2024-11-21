@@ -15,7 +15,7 @@ onMounted(async () => {
 </script>
 
 <template>
-	<n-config-provider>
+	<n-config-provider inline-theme-disabled>
 		<n-message-provider>
 			<n-modal-provider>
 				<n-dialog-provider>

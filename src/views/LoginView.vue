@@ -25,7 +25,6 @@ const redirect = () => {
 }
 
 const afterLogin = () => {
-	setTimeout(() => message.info("Login successful. Hi, " + sessionCredential.userID), 0);
 	sessionCredential.logged = true;
 	redirect();
 }
@@ -35,7 +34,7 @@ if (!sessionCredential.logged) {
 		getTokenState(sessionSocket, sessionCredential)
 			.then((data) => {
 				if (data.valid) {
-					console.log("Login successful, using stored token and user id");
+					message.info("Login successful, using stored token and user id");
 					afterLogin();
 				}
 				else {
@@ -59,9 +58,7 @@ function localLogin() {
 	login(userCredential.value.userName, userCredential.value.password, sessionSocket, sessionCredential)
 		.then(() => {
 			setTimeout(() => message.info("Login successful. Hi, " + userCredential.value.userName), 0);
-			sessionCredential.logged = true;
-			router.push(useRouterStore().redirect || "/");
-			useRouterStore().redirect = "";
+			afterLogin();
 		})
 		.catch((error) => message.error(String(error)));
 }
@@ -94,6 +91,20 @@ function localLogin() {
 </template>
 
 <style scoped>
+@keyframes fade-in {
+	0% {
+		opacity: 0;
+	}
+
+	30% {
+		opacity: 0;
+	}
+
+	100% {
+		overflow: 1;
+	}
+}
+
 .outer-container {
 	width: 100%;
 	height: 100%;
@@ -101,6 +112,7 @@ function localLogin() {
 	display: grid;
 	place-items: center;
 	align-items: center;
+	animation: fade-in 0.2s ease-in;
 }
 
 .login-card {

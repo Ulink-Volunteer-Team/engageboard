@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { defineProps } from 'vue';
 import { type RecruitmentDataType } from '@/utils/server-apis';
 import RecruitmentInfoDisplay from './RecruitmentInfoDisplay.vue';
 import { NEmpty, NModal, NButton } from 'naive-ui';

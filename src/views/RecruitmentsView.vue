@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, type Component, computed } from "vue";
-import { useMessage, NEmpty, NSelect, NInput, NDataTable, type DataTableColumns, NCard, NFlex, NButton, NIcon, NDynamicInput, NSplit, NList, NListItem } from 'naive-ui';
-import { DeleteOutlineRound, PostAddRound, SearchRound, ManageSearchRound } from "@vicons/material"
+import { ref, type Component, type Ref, computed, watch } from "vue";
+import { useMessage, NEmpty, NSelect, NInput, NDataTable, type DataTableColumns, NCard, NFlex, NButton, NIcon, NDynamicInput, NSplit, NTooltip, NSwitch } from 'naive-ui';
+import { DeleteOutlineRound, PostAddRound, SearchRound, ManageSearchRound, EditNoteRound } from "@vicons/material"
 import { useSessionSocket } from '@/stores/session-socket';
 import { useSessionCredentialStore } from '@/stores/session-credential';
 import router from '@/router';
@@ -11,6 +11,7 @@ import SinglePrompt from "@/components/SinglePrompt.vue";
 import { useRouterStore } from '@/stores/router-store';
 import RecruitmentDisplayDialog from "@/components/RecruitmentDisplayDialog.vue";
 import RecruitmentInfoDisplay from "@/components/RecruitmentInfoDisplay.vue";
+import StudentSelectorDialog from "@/components/StudentSelectorDialog.vue";
 
 const message = useMessage();
 const sessionCredential = await useSessionCredentialStore();
@@ -21,7 +22,7 @@ if (!sessionCredential.logged) {
 	router.push("/login");
 }
 
-const searchCriteria = ref<{ key: string, value: string }[]>([]);
+const searchFilter = ref<{ key: string, value: string }[]>([]);
 const searchOptions = ref([{
 	label: "Event Name",
 	value: "eventName"
@@ -36,11 +37,18 @@ const searchResult = ref<RecruitmentDataType[]>([]);
 const selectedIds = ref<string[]>([]);
 const loading = ref(false);
 
+const tableMultipleSelection = ref(true);
+watch(tableMultipleSelection, () => {
+	if (tableMultipleSelection.value == false && selectedIds.value.length > 0) {
+		selectedIds.value = selectedIds.value.slice(0, 1);
+	}
+})
+
 let timer: number | undefined;
 function updateSearchResult() {
-	if (searchCriteria.value.length < 1) return;
-	const values = searchCriteria.value.map(({ value }) => value).filter(value => value !== "");
-	const fields = searchCriteria.value.map(({ key }) => key).filter(value => value !== "");
+	if (searchFilter.value.length < 1) return;
+	const values = searchFilter.value.map(({ value }) => value).filter(value => value !== "");
+	const fields = searchFilter.value.map(({ key }) => key).filter(value => value !== "");
 	loading.value = true;
 	if (timer !== undefined) {
 		clearTimeout(timer);
@@ -76,8 +84,10 @@ const openIDSearchDialog = () => recruitmentIDSearchDialogVisible.value = true;
 const closeIDSearchDialog = () => recruitmentIDSearchDialogVisible.value = false;
 
 const recruitmentDisplayDialogVisible = ref(false);
+const studentSelectorDialogVisible = ref(false);
 
 const selectedRecruitments = computed(() => searchResult.value.filter(({ id }) => id ? selectedIds.value.includes(id) : false));
+const studentsToAdd = ref<string[]>([]);
 
 const addRecruitmentLocal = (newRecruitmentInfo: RecruitmentDataType) => {
 	addRecruitments([newRecruitmentInfo], sessionSocket, sessionCredential)
@@ -116,10 +126,11 @@ const getRecruitmentByIDLocal = (id: string) => {
 		.finally(() => closeIDSearchDialog());
 }
 
-const columns: DataTableColumns<RecruitmentDataType> = [
+const columns = computed(() => [
 	{
 		type: 'selection',
 		fixed: 'left',
+		multiple: tableMultipleSelection.value,
 		options: [
 			"all",
 			"none",
@@ -139,9 +150,18 @@ const columns: DataTableColumns<RecruitmentDataType> = [
 		minWidth: 200,
 		fixed: 'left'
 	},
-];
+]);
 
-const toolBarItems: Array<{ title: string, icon: Component, onClick: () => void, critical: boolean }> = [
+type ToolBarItemType = {
+	title: string,
+	icon: Component,
+	onClick: () => void,
+	critical: boolean,
+	disabled?: boolean
+}
+
+const notAvailableLabel = (label: string, source: Ref<boolean>, not: boolean = false) => computed(() => (not ? !source.value : source.value) ? `${label} (Not Available in Multiple Selection)` : label);
+const toolBarItems = computed<ToolBarItemType[]>(() => [
 	{
 		title: "Delete",
 		icon: DeleteOutlineRound,
@@ -170,38 +190,42 @@ const toolBarItems: Array<{ title: string, icon: Component, onClick: () => void,
 		critical: false
 	},
 	{
-		title: "Search",
+		title: "Search by Filter",
 		icon: ManageSearchRound,
 		onClick: updateSearchResult,
 		critical: false,
 	},
 	{
-		title: "Search ID",
+		title: "Search by ID",
 		icon: SearchRound,
 		onClick: openIDSearchDialog,
 		critical: false
+	},
+	{
+		title: notAvailableLabel("Edit", tableMultipleSelection).value,
+		icon: EditNoteRound,
+		onClick: () => {
+			if (selectedRecruitments.value.length === 0) {
+				message.error("Please select at least one recruitment");
+				return;
+			}
+			recruitmentDisplayDialogVisible.value = true;
+		},
+		critical: false,
+		disabled: tableMultipleSelection.value
 	}
-];
+]);
 </script>
 
 <template>
 	<div class="outer-container">
-		<n-split direction="horizontal" style="height: 100%;" pane2-style="overflow: visible;"
-		:max="0.8" :min="0.2" :default-size="0.7">
+		<n-split direction="horizontal" style="height: 100%;" :max="0.8" :min="0.2" :default-size="0.7"
+			pane2-style="overflow: visible; min-width: 0;">
 			<template #1>
 				<!-- Search Result -->
-				<n-card content-style="padding: 0px;" class="search-result">
-					<!-- No Data -->
-					<div v-if="(searchResult.length === 0) && !loading"
-						style="display: grid; place-items: center; height: 100%;">
-						<n-empty
-							:description="searchCriteria.length === 0 ? 'Please Input the Search Data' : 'No Data'" />
-					</div>
-					<!-- Data -->
-					<n-data-table v-else v-model:checked-row-keys="selectedIds" :columns="columns" :data="searchResult"
-						:row-key="row => row.id" :loading="loading" virtual-scroll flex-height style="height: 100%;"
-						:bordered="false" />
-				</n-card>
+				<n-data-table v-model:checked-row-keys="selectedIds" :columns="(columns as DataTableColumns)"
+						:data="searchResult" :row-key="row => row.id" :loading="loading" virtual-scroll flex-height
+						class="search-result" />
 			</template>
 
 			<template #resize-trigger>
@@ -209,69 +233,68 @@ const toolBarItems: Array<{ title: string, icon: Component, onClick: () => void,
 			</template>
 
 			<template #2>
-				<n-split direction="vertical" style="height: 100%;" :max="0.5" :min="0.1" :default-size="0.3">
+				<!-- Search Filter & Recruitment Details-->
+				<n-split direction="vertical" style="height: 100%; overflow: visible;" :max="0.7" :min="0.2"
+					:default-size="0.3">
 					<template #1>
-						<!-- filter -->
-						<n-card content-style="overflow: auto; padding: 0px;" class="search-bar" size="small"
-							title="Search Criteria">
-							<n-dynamic-input preset="pair" style="overflow: auto; padding: 8px;"
-								v-model:value="searchCriteria" :on-create="() => ({ key: '', value: '' })">
-								<template #default="{ value }">
-									<div style="display: flex; align-items: center; width: 100%">
-										<n-flex :wrap="false" style="width: 100%;">
-											<n-select v-model:value="value.key" :options="searchOptions" />
-											<n-input v-model:value="value.value" type="text" />
-										</n-flex>
-									</div>
-								</template>
-							</n-dynamic-input>
-							<template #footer>
-								<n-flex :wrap="false">
-									<n-button strong secondary style="height: 2em; width: 2em;"
-										v-for="item in toolBarItems" :key="item.title" @click="item.onClick"
-										:type="(item.critical ? 'error' : 'primary')">
-										<template #icon>
-											<n-icon>
-												<component :is="item.icon" />
-											</n-icon>
-										</template>
-									</n-button>
-								</n-flex>
-							</template>
-						</n-card>
-
-						<n-card content-style="padding: 8px;" class="tool-bar">
-							<n-flex justify="left" :align="'center'" style="height: 2em;">
-								<!-- Tool Bar Items -->
-								<n-button strong secondary style="height: 2em; width: 2em;" v-for="item in toolBarItems"
-									:key="item.title" @click="item.onClick"
-									:type="(item.critical ? 'error' : 'primary')">
-									<template #icon>
-										<n-icon>
-											<component :is="item.icon" />
-										</n-icon>
+						<!-- Filter -->
+						<div class="filter-tools-container">
+							<n-card content-style="padding: 0px;" class="search-bar" size="small" title="Search Filter">
+								<n-dynamic-input preset="pair" style="padding: 8px; overflow-x: auto; height: 100%;"
+									v-model:value="searchFilter" :on-create="() => ({ key: '', value: '' })"
+									item-style="width: fit-content;">
+									<template #default="{ value }">
+										<div style="display: flex; align-items: center;">
+											<n-flex :wrap="false" style="width: 100%;">
+												<n-select v-model:value="value.key" :options="searchOptions"
+													style="min-width: 6em;" />
+												<n-input v-model:value="value.value" type="text"
+													style="min-width: 3em;" />
+											</n-flex>
+										</div>
 									</template>
-								</n-button>
-							</n-flex>
-						</n-card>
+								</n-dynamic-input>
+							</n-card>
+							<!-- tool bar -->
+							<n-card class="tool-bar" style="padding: 8px; min-width: 0; overflow-x: auto;"
+								content-style="padding: 0px;">
+								<n-flex :wrap="false" justify="left" :align="'center'">
+									<n-tooltip trigger="hover" v-for="item in toolBarItems" :key="item.title">
+										<template #trigger>
+											<n-button strong secondary style="height: 2em; width: 2em;"
+												@click="item.onClick" :type="(item.critical ? 'error' : 'primary')"
+												:disabled="item.disabled || false">
+												<template #icon><n-icon>
+														<component :is="item.icon" />
+													</n-icon></template>
+											</n-button>
+										</template>
+										<span>{{ item.title }}</span>
+									</n-tooltip>
+									<n-tooltip trigger="hover">
+										<template #trigger>
+											<n-switch v-model:value="tableMultipleSelection" />
+										</template>
+										<span>Multiple Selection</span>
+									</n-tooltip>
+								</n-flex>
+							</n-card>
+						</div>
 					</template>
 
 					<template #resize-trigger>
 						<div class="resize-trigger-horizontal resize-trigger"></div>
 					</template>
+
+					<!-- Recruitment Details -->
 					<template #2>
-						<n-card content-style="padding: 0px; overflow: hidden;" class="search-result">
-							<div v-if="selectedRecruitments.length === 0 || searchCriteria.length === 0"
-							style="display: grid; place-items: center; height: 100%; width: 100%;">
-								<n-empty description="Please Select a Recruitment or Input Search Criteria" />
+						<n-card size="small" class="search-result">
+							<div v-if="selectedRecruitments.length === 0 || searchFilter.length === 0"
+								style="display: grid; place-items: center; height: 100%; width: 100%;">
+								<n-empty description="Please Select a Recruitment or Input Search Filter" />
 							</div>
-							<div style="padding: 16px; height: 100%; width: 100; overflow: auto;" v-else>
-								<p style="position: sticky; top: -16px; z-index: 9999; background-color: var(--n-color); padding: 8px;">Selected {{ selectedRecruitments.length }} Relevant Recruitments</p>
-								<n-list :show-divider="true" style="overflow: auto">
-									<n-list-item v-for="recruitment in selectedRecruitments" :key="recruitment.id">
-										<div><recruitment-info-display :recruitment="recruitment"/></div>
-									</n-list-item>
-								</n-list>
+							<div style="height: 100%; width: 100; overflow-x: scroll;" v-else>
+								<recruitment-info-display :recruitment="selectedRecruitments[0]" />
 							</div>
 						</n-card>
 					</template>
@@ -286,6 +309,7 @@ const toolBarItems: Array<{ title: string, icon: Component, onClick: () => void,
 			placeholder="Recruitment ID" />
 		<recruitment-display-dialog v-model:visible="recruitmentDisplayDialogVisible"
 			:recruitment="selectedRecruitments[0]" />
+		<student-selector-dialog v-model:visible="studentSelectorDialogVisible" v-model:value="studentsToAdd" />
 	</div>
 </template>
 
@@ -295,16 +319,41 @@ const toolBarItems: Array<{ title: string, icon: Component, onClick: () => void,
 	width: 100%;
 }
 
+.tool-bar {
+	grid-column: 1 / 2;
+	grid-row: 2 / 3;
+	height: 100%;
+	width: 100%;
+}
+
 .search-bar {
+	grid-column: 1 / 2;
+	grid-row: 1 / 2;
+	height: 100%;
+	width: 100%;
+	min-height: 0;
+	min-width: 0;
+	overflow-y: auto;
+}
+
+.filter-tools-container {
+	margin: 4px;
 	height: calc(100% - 8px);
 	width: calc(100% - 8px);
-	margin: 4px;
+
+	display: grid;
+	gap: 8px;
+	grid-template-columns: 1fr;
+	grid-template-rows: 1fr 3em;
 }
 
 .search-result {
 	height: calc(100% - 8px);
 	width: calc(100% - 8px);
 	margin: 4px;
+	min-width: 0;
+	min-height: 0;
+	overflow-x: auto;
 }
 
 .resize-trigger {

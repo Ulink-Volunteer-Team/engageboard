@@ -3,19 +3,18 @@ import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 
+const debugHost = "http://localhost:3000";
+const releaseHost = process.env.SERVER_HOST;
+
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
 	const isDev = mode === 'development';
-	const serverIP = JSON.stringify(process.env.SERVER_IP || "localhost");
-	const serverPort = JSON.stringify(JSON.parse(process.env.SERVER_PORT || "3000"));
-	if (isDev) {
-		console.log(`Server IP: ${serverIP}`);
-		console.log(`Server Port: ${serverPort}`);
-	}
+	const host = JSON.stringify((isDev ? debugHost : releaseHost) || "https://example.com");
+	console.log(`Using server host: ${host}`);
 	return {
+		mode,
 		define: {
-			__SERVER_IP__: serverIP,
-			__SERVER_PORT__: serverPort,
+			__HOST_URL__: host
 		},
 		plugins: [
 			vue(),
@@ -25,14 +24,18 @@ export default defineConfig(({ mode }) => {
 				'@': fileURLToPath(new URL('./src', import.meta.url))
 			},
 		},
-		build: isDev
-			? {
+		build: {
+			...(isDev
+			? { // Options for development builds
 				minify: false,
 				sourcemap: true,
 			}
-			: {
+			: { // Options for production builds
 				minify: true,
 				sourcemap: false,
-			},
+			}),
+			// Shared settings
+
+		},
 	}
 })
