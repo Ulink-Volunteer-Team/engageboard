@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { NCard, NForm, NFormItem, NInput, NButton, useMessage } from "naive-ui";
-import { ref } from "vue";
+import { NCard, NForm, NFormItem, NInput, NButton, useMessage, useLoadingBar } from "naive-ui";
+import { ref, onMounted } from "vue";
 import { useSessionSocket } from "@/stores/session-socket";
 import { useSessionCredentialStore, clearSessionCredential } from "@/stores/session-credential";
 import { login, getTokenState } from "@/utils/server-apis";
@@ -62,6 +62,10 @@ function localLogin() {
 		})
 		.catch((error) => message.error(String(error)));
 }
+
+onMounted(() => {
+	useLoadingBar().finish();
+})
 </script>
 
 <template>

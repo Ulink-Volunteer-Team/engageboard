@@ -1,8 +1,4 @@
 import { createRouter, createMemoryHistory } from 'vue-router';
-import Login from "@/views/LoginView.vue";
-import Home from "@/views/HomeView.vue";
-import Students from "@/views/StudentsView.vue";
-import Recruitments from '@/views/RecruitmentsView.vue';
 
 const router = createRouter({
   history: createMemoryHistory(import.meta.env.BASE_URL),
@@ -10,22 +6,22 @@ const router = createRouter({
     {
       path: '/login',
       name: 'login',
-      component: Login,
+      component: () => import("@/views/LoginView.vue"),
     },
 	{
 		path: "/",
 		name: "home",
-		component: Home,
+		component: () => import("@/views/HomeView.vue"),
 	},
 	{
 		path: "/students",
 		name: "students",
-		component: Students,
+		component: () => import("@/views/StudentsView.vue"),
 	},
 	{
 		path: "/recruitments",
 		name: "recruitments",
-		component: Recruitments
+		component: () => import("@/views/RecruitmentsView.vue")
 	}
   ],
 });

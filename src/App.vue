@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import RouterBar from "@/router/RouterBar.vue";
-import { NConfigProvider, NMessageProvider, NDialogProvider, NModalProvider } from "naive-ui";
+import { NConfigProvider, NMessageProvider, NDialogProvider, NModalProvider, NLoadingBarProvider, useOsTheme, lightTheme, darkTheme } from "naive-ui";
 import { useSessionCredentialStore } from "@/stores/session-credential";
 import router from "./router";
-import { onMounted } from "vue";
+import { onMounted, computed } from "vue";
+import AppBase from "./components/AppBase.vue";
+
+const theme = computed(() => ((useOsTheme().value === "dark") ? darkTheme : lightTheme));
 
 onMounted(async () => {
 	const sessionCredentialStore = await useSessionCredentialStore();
@@ -15,47 +17,15 @@ onMounted(async () => {
 </script>
 
 <template>
-	<n-config-provider inline-theme-disabled>
-		<n-message-provider>
-			<n-modal-provider>
-				<n-dialog-provider>
-					<div class="app">
-						<RouterBar class="router-bar" />
-						<div class="router-view">
-							<RouterView style="height: 100%; width: 100%;" v-slot="{ Component }">
-								<Suspense>
-									<component :is="Component" />
-								</Suspense>
-							</RouterView>
-						</div>
-					</div>
-				</n-dialog-provider>
-			</n-modal-provider>
-		</n-message-provider>
+	<n-config-provider inline-theme-disabled style="width: 100%; height: 100%;" :theme=theme>
+		<n-loading-bar-provider>
+			<n-message-provider>
+				<n-modal-provider>
+					<n-dialog-provider>
+						<AppBase />
+					</n-dialog-provider>
+				</n-modal-provider>
+			</n-message-provider>
+		</n-loading-bar-provider>
 	</n-config-provider>
 </template>
-
-<style scoped>
-.app {
-	--margin: 8px;
-	width: 100%;
-	height: 100%;
-	position: fixed;
-}
-
-.router-bar {
-	position: absolute;
-	top: var(--margin);
-	bottom: var(--margin);
-	left: var(--margin);
-	width: 8em;
-}
-
-.router-view {
-	position: absolute;
-	top: var(--margin);
-	bottom: var(--margin);
-	left: 9em;
-	right: var(--margin);
-}
-</style>

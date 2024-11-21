@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, type Component, type Ref, computed, watch } from "vue";
-import { useMessage, NEmpty, NSelect, NInput, NDataTable, type DataTableColumns, NCard, NFlex, NButton, NIcon, NDynamicInput, NSplit, NTooltip, NSwitch } from 'naive-ui';
+import { ref, type Component, type Ref, computed, watch, onMounted } from "vue";
+import { useMessage, NEmpty, NSelect, NInput, NDataTable, type DataTableColumns, NCard, NFlex, NButton, NIcon, NDynamicInput, NSplit, NTooltip, NSwitch, useLoadingBar } from 'naive-ui';
 import { DeleteOutlineRound, PostAddRound, SearchRound, ManageSearchRound, EditNoteRound } from "@vicons/material"
 import { useSessionSocket } from '@/stores/session-socket';
 import { useSessionCredentialStore } from '@/stores/session-credential';
@@ -215,6 +215,10 @@ const toolBarItems = computed<ToolBarItemType[]>(() => [
 		disabled: tableMultipleSelection.value
 	}
 ]);
+
+onMounted(() => {
+	useLoadingBar().finish();
+})
 </script>
 
 <template>
@@ -224,8 +228,8 @@ const toolBarItems = computed<ToolBarItemType[]>(() => [
 			<template #1>
 				<!-- Search Result -->
 				<n-data-table v-model:checked-row-keys="selectedIds" :columns="(columns as DataTableColumns)"
-						:data="searchResult" :row-key="row => row.id" :loading="loading" virtual-scroll flex-height
-						class="search-result" />
+					:data="searchResult" :row-key="row => row.id" :loading="loading" virtual-scroll flex-height
+					class="search-result" />
 			</template>
 
 			<template #resize-trigger>

@@ -1,15 +1,17 @@
 <script setup lang="ts">
-import {Icon} from "@vicons/utils";
-import {DashboardRound/*, LogInRound*/, AccountBoxRound, EventNoteRound} from "@vicons/material"
-import {NFlex} from "naive-ui";
-import {RouterLink} from 'vue-router';
-import {type Component} from "vue";
+import { Icon } from "@vicons/utils";
+import { DashboardRound/*, LogInRound*/, AccountBoxRound, EventNoteRound } from "@vicons/material"
+import { NFlex, useLoadingBar } from "naive-ui";
+import { RouterLink } from 'vue-router';
+import { type Component } from "vue";
 
 type RouterItemType = {
 	icon: Component,
 	to: string;
 	title: string
 }
+
+const loadingBar = useLoadingBar();
 
 const routers: RouterItemType[] = [
 	{
@@ -33,17 +35,23 @@ const routers: RouterItemType[] = [
 		title: "Recruitments",
 	}
 ];
+
+const startLoadingBar = () => {
+	loadingBar.start();
+}
 </script>
 
 <template>
 	<n-flex vertical>
-		<RouterLink v-for="(router) in routers" :to="router.to" :title="router.title" :key="router.to" class="router-item">
-			<div style="display: flex; align-items: center; justify-content: center; grid-column: 1 / 2; grid-row: 1 / 2">
+		<RouterLink v-for="(router) in routers" :to="router.to" :title="router.title" :key="router.to"
+			class="router-item" @click="startLoadingBar">
+			<div
+				style="display: flex; align-items: center; justify-content: center; grid-column: 1 / 2; grid-row: 1 / 2">
 				<Icon :size="24">
 					<component :is="router.icon"></component>
 				</Icon>
 			</div>
-			<p style="font-size: 0.6em; grid-column: 2 / 3; grid-row: 1 / 2">{{router.title}}</p>
+			<p style="font-size: 0.6em; grid-column: 2 / 3; grid-row: 1 / 2">{{ router.title }}</p>
 		</RouterLink>
 	</n-flex>
 </template>
@@ -69,5 +77,10 @@ const routers: RouterItemType[] = [
 	color: hsla(160, 100%, 37%, 1);
 	transition: 0.4s;
 	padding: 3px;
+}
+
+.router-item:hover {
+	background-color: hsla(160, 100%, 37%, 0.2);
+	cursor: pointer;
 }
 </style>

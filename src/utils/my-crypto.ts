@@ -1,4 +1,4 @@
-import * as CryptoJS from 'crypto-js';
+import CryptoJS from 'crypto-js';
 import * as forge from 'node-forge';
 
 /**
@@ -7,13 +7,13 @@ import * as forge from 'node-forge';
  * @returns A string consisting of the hexadecimal representation (`<Key><IV>`).
  */
 export function generateAes256Password(): string {
-  const key = CryptoJS.lib.WordArray.random(32); // 256-bit key
-  const iv = CryptoJS.lib.WordArray.random(16);  // 128-bit IV
+	const key = CryptoJS.lib.WordArray.random(32); // 256-bit key
+	const iv = CryptoJS.lib.WordArray.random(16);  // 128-bit IV
 
-  const keyHex = key.toString(CryptoJS.enc.Hex);
-  const ivHex = iv.toString(CryptoJS.enc.Hex);
+	const keyHex = key.toString(CryptoJS.enc.Hex);
+	const ivHex = iv.toString(CryptoJS.enc.Hex);
 
-  return keyHex + ivHex;
+	return keyHex + ivHex;
 }
 
 /**
@@ -23,13 +23,13 @@ export function generateAes256Password(): string {
  * @returns An object containing the key and IV as WordArrays.
  */
 export function decodeAes256Password(password: string) {
-  const keyHex = password.slice(0, 64);
-  const ivHex = password.slice(64);
+	const keyHex = password.slice(0, 64);
+	const ivHex = password.slice(64);
 
-  return {
-    key: CryptoJS.enc.Hex.parse(keyHex),
-    iv: CryptoJS.enc.Hex.parse(ivHex)
-  };
+	return {
+		key: CryptoJS.enc.Hex.parse(keyHex),
+		iv: CryptoJS.enc.Hex.parse(ivHex)
+	};
 }
 
 /**
@@ -40,10 +40,10 @@ export function decodeAes256Password(password: string) {
  * @returns The encrypted data as a base64 encoded string.
  */
 export function encryptAes256(data: string, password: string): string {
-  const { key, iv } = decodeAes256Password(password);
+	const { key, iv } = decodeAes256Password(password);
 
-  const encrypted = CryptoJS.AES.encrypt(data, key, { iv }).ciphertext;
-  return encrypted.toString(CryptoJS.enc.Base64);
+	const encrypted = CryptoJS.AES.encrypt(data, key, { iv }).ciphertext;
+	return encrypted.toString(CryptoJS.enc.Base64);
 }
 
 /**
@@ -54,10 +54,10 @@ export function encryptAes256(data: string, password: string): string {
  * @returns The decrypted data as a UTF-8 string.
  */
 export function decryptAes256(encrypted: string, password: string): string {
-  const { key, iv } = decodeAes256Password(password);
+	const { key, iv } = decodeAes256Password(password);
 
-  const decrypted = CryptoJS.AES.decrypt(encrypted, key, { iv });
-  return decrypted.toString(CryptoJS.enc.Utf8);
+	const decrypted = CryptoJS.AES.decrypt(encrypted, key, { iv });
+	return decrypted.toString(CryptoJS.enc.Utf8);
 }
 
 /**
@@ -68,9 +68,9 @@ export function decryptAes256(encrypted: string, password: string): string {
  * @returns The encrypted data as a base64 encoded string.
  */
 export async function encryptRsa(data: string, publicKey: string): Promise<string> {
-  const rsa = forge.pki.publicKeyFromPem(publicKey);
-  const encrypted = rsa.encrypt(data, 'RSA-OAEP', { md: forge.md.sha256.create() });
-  return forge.util.encode64(encrypted);
+	const rsa = forge.pki.publicKeyFromPem(publicKey);
+	const encrypted = rsa.encrypt(data, 'RSA-OAEP', { md: forge.md.sha256.create() });
+	return forge.util.encode64(encrypted);
 }
 
 /**
@@ -81,10 +81,10 @@ export async function encryptRsa(data: string, publicKey: string): Promise<strin
  * @returns The decrypted data as a UTF-8 string.
  */
 export async function decryptRsa(encrypted: string, privateKey: string): Promise<string> {
-  const rsa = forge.pki.privateKeyFromPem(privateKey);
-  const decoded = forge.util.decode64(encrypted);
-  const decrypted = rsa.decrypt(decoded, 'RSA-OAEP', { md: forge.md.sha256.create() });
-  return decrypted;
+	const rsa = forge.pki.privateKeyFromPem(privateKey);
+	const decoded = forge.util.decode64(encrypted);
+	const decrypted = rsa.decrypt(decoded, 'RSA-OAEP', { md: forge.md.sha256.create() });
+	return decrypted;
 }
 
 /**
@@ -93,13 +93,13 @@ export async function decryptRsa(encrypted: string, privateKey: string): Promise
  * @returns An object containing the public and private keys, each as a PEM encoded string (based 64 encoded).
  */
 export async function generateRsaKeyPair(): Promise<{ publicKey: string, privateKey: string }> {
-  const rsa = forge.pki.rsa;
-  const keyPair = rsa.generateKeyPair(2048);
-  const publicKey = forge.pki.publicKeyToPem(keyPair.publicKey);
-  const privateKey = forge.pki.privateKeyToPem(keyPair.privateKey);
+	const rsa = forge.pki.rsa;
+	const keyPair = rsa.generateKeyPair(2048);
+	const publicKey = forge.pki.publicKeyToPem(keyPair.publicKey);
+	const privateKey = forge.pki.privateKeyToPem(keyPair.privateKey);
 
-  return {
-    publicKey,
-    privateKey
-  };
+	return {
+		publicKey,
+		privateKey
+	};
 }

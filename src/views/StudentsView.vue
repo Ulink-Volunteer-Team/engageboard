@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, watch, type Component } from "vue";
-import { useMessage, NEmpty, NInput, NDataTable, type DataTableColumns, NCard, NFlex, NButton, NIcon, useDialog } from 'naive-ui';
+import { ref, watch, type Component, onMounted } from "vue";
+import { useMessage, NEmpty, NInput, NDataTable, type DataTableColumns, NCard, NFlex, NButton, NIcon, useDialog, useLoadingBar } from 'naive-ui';
 import { DeleteOutlineRound, PersonAddAlt1Round, SearchRound } from "@vicons/material"
 import { useSessionSocket } from '@/stores/session-socket';
 import { useSessionCredentialStore } from '@/stores/session-credential';
@@ -155,6 +155,10 @@ const toolBarItems: Array<{ title: string, icon: Component, onClick: () => void,
 		critical: false
 	}
 ];
+
+onMounted(() => {
+	useLoadingBar().finish();
+})
 </script>
 
 <template>
@@ -204,8 +208,7 @@ const toolBarItems: Array<{ title: string, icon: Component, onClick: () => void,
 	grid-template-rows: 2em 3em auto;
 	align-content: stretch;
 	align-items: stretch;
-	gap: 1em;
-	padding: 1em;
+	gap: 8px;
 
 	justify-items: center;
 	align-items: center;
