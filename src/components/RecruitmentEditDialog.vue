@@ -13,6 +13,7 @@ const props = defineProps<{
 }>();
 
 const visible = defineModel<boolean>("visible");
+const emit = defineEmits(['confirmed']);
 
 const message = useMessage();
 
@@ -24,49 +25,52 @@ watch(props, async () => {
 
 	const sessionSocket = await useSessionSocket();
 	const sessionCredential = await useSessionCredentialStore();
-	getRecruitmentByID(props.recruitmentID, sessionSocket, sessionCredential).then((recruitment) => {
-		if (!recruitment) {
-			message.error("Recruitment Not Found");
-		}
-		else {
-			getVolunteersIDsByRecruitmentIDs([recruitment.id!], sessionSocket, sessionCredential).then((result) => {
-				const participants = result.find(id => id[0] === recruitment.id)?.[1] || [];
+	getRecruitmentByID(props.recruitmentID, sessionSocket, sessionCredential)
+		.then((recruitment) => {
+			if (!recruitment) {
+				message.error("Recruitment Not Found");
+			}
+			else {
+				getVolunteersIDsByRecruitmentIDs([recruitment.id!], sessionSocket, sessionCredential)
+					.then((result) => {
+						const participants = result.find(id => id[0] === recruitment.id)?.[1] || [];
 
-				participantsRef.value = participants;
-				recruitmentRef.value = recruitment;
-			})
-			.catch((error) => {
-				message.error("Fail to load volunteer data");
-				console.error(error);
-			})
-		}
-	})
-	.catch((error) => {
-		message.error("Fail to load recruitment");
-		console.error(error);
-	})
-}, {deep: true});
+						participantsRef.value = participants;
+						recruitmentRef.value = recruitment;
+					})
+					.catch((error) => {
+						message.error("Fail to load volunteer data");
+						console.error(error);
+					});
+			}
+		})
+		.catch((error) => {
+			message.error("Fail to load recruitment");
+			console.error(error);
+		});
+}, { deep: true });
 
 const handleConfirm = async () => {
 	const sessionSocket = await useSessionSocket();
 	const sessionCredential = await useSessionCredentialStore();
 
-	console.log(participantsRef.value, recruitmentRef.value);
-	await updateStudentsOfAnEvent(recruitmentRef.value!.id!, participantsRef.value, sessionSocket, sessionCredential);
-	try{
-
+	try {
+		await updateStudentsOfAnEvent(recruitmentRef.value!.id!, participantsRef.value, sessionSocket, sessionCredential);
 		await updateRecruitments([recruitmentRef.value!], sessionSocket, sessionCredential);
 		visible.value = false;
 	}
-	catch(error) {
-		message.error("Errors occurred when trying to update recruitment: "+ String(error));
+	catch (error) {
+		message.error("Errors occurred when trying to update recruitment: " + String(error));
 		console.error(error);
 	}
-}
+
+	emit("confirmed");
+};
 </script>
 
 <template>
-	<n-modal v-model:show="visible" preset="card" title="Edit Recruitment" class="model" content-style="width: 100%;" style="width: 60em">
+	<n-modal v-model:show="visible" preset="card" title="Edit Recruitment" class="model" content-style="width: 100%;"
+		style="width: 60em">
 		<recruitment-edit v-model:recruitment="recruitmentRef" v-model:participants="participantsRef" />
 		<template #action>
 			<n-button type="primary" @click="handleConfirm">Save</n-button>

@@ -15,7 +15,7 @@ if (!sessionCredential.logged) {
 
 onMounted(() => {
 	useLoadingBar().finish();
-})
+});
 </script>
 
 <template>

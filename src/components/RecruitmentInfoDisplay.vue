@@ -10,13 +10,13 @@ const message = useMessage();
 const columns = [
 	{
 		title: "Student ID",
-		key: "id"
+		key: "id",
 	},
 	{
 		title: "Student Name",
-		key: "name"
+		key: "name",
 	},
-]
+];
 
 const participants = ref<StudentType[]>([]);
 const loading = ref(false);
@@ -28,7 +28,7 @@ const props = defineProps<{
 const updateParticipants = async () => {
 	const id = props.recruitment.id;
 	if (!id) {
-		participants.value = []
+		participants.value = [];
 		return;
 	}
 
@@ -47,7 +47,7 @@ const updateParticipants = async () => {
 	finally {
 		loading.value = false;
 	}
-}
+};
 
 watch(props, async () => {
 	updateParticipants();

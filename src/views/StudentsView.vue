@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, type Component, onMounted } from "vue";
 import { useMessage, NEmpty, NInput, NDataTable, type DataTableColumns, NCard, NFlex, NButton, NIcon, useDialog, useLoadingBar } from 'naive-ui';
-import { DeleteOutlineRound, PersonAddAlt1Round, SearchRound } from "@vicons/material"
+import { DeleteOutlineRound, PersonAddAlt1Round, SearchRound } from "@vicons/material";
 import { useSessionSocket } from '@/stores/session-socket';
 import { useSessionCredentialStore } from '@/stores/session-credential';
 import router from '@/router';
@@ -68,7 +68,7 @@ const addStudentsLocal = (newStudentInfo: StudentType) => {
 			message.error("API call failed on addStudents");
 		})
 		.finally(() => closeNewStudentDialog());
-}
+};
 
 const getStudentByIDLocal = (studentID: string) => {
 	if (!studentID) {
@@ -86,14 +86,14 @@ const getStudentByIDLocal = (studentID: string) => {
 				title: 'Search result',
 				content: `Student with ID "${studentID}" is called "${name}"`,
 				positiveText: 'Confirm',
-			})
+			});
 		})
 		.catch(() => {
 
 			message.error(`API call failed on getStudentByID`);
 		})
 		.finally(() => closeIDSearchDialog());
-}
+};
 
 const columns: DataTableColumns<StudentType> = [
 	{
@@ -102,21 +102,21 @@ const columns: DataTableColumns<StudentType> = [
 		options: [
 			"all",
 			"none",
-		]
+		],
 	},
 	{
 		title: 'ID',
 		key: 'id',
 		maxWidth: 200,
 		minWidth: 100,
-		fixed: 'left'
+		fixed: 'left',
 	},
 	{
 		title: 'Name',
 		key: 'name',
 		maxWidth: 300,
 		minWidth: 200,
-		fixed: 'left'
+		fixed: 'left',
 	},
 ];
 
@@ -137,28 +137,28 @@ const toolBarItems: Array<{ title: string, icon: Component, onClick: () => void,
 				})
 				.catch((error) => {
 					loading.value = false;
-					message.error(String(error))
-				})
+					message.error(String(error));
+				});
 		},
-		critical: true
+		critical: true,
 	},
 	{
 		title: "Add",
 		icon: PersonAddAlt1Round,
 		onClick: openNewStudentDialog,
-		critical: false
+		critical: false,
 	},
 	{
 		title: "Search ID",
 		icon: SearchRound,
 		onClick: openIDSearchDialog,
-		critical: false
-	}
+		critical: false,
+	},
 ];
 
 onMounted(() => {
 	useLoadingBar().finish();
-})
+});
 </script>
 
 <template>

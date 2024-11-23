@@ -8,8 +8,8 @@ const storage = localforage.createInstance({
 });
 
 const initialValue = {
-	hostURL: ""
-}
+	hostURL: "",
+};
 
 export const useServerInfo = async () => {
 	const storedValue = await storage.getItem<{ hostURL: string }>("server-info") || initialValue;

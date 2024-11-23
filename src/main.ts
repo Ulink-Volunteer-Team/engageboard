@@ -43,5 +43,5 @@ import { useSessionSocket } from './stores/session-socket';
 			console.error(error);
 		});
 
-})()
+})();
 

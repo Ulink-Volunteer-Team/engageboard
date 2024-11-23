@@ -28,7 +28,7 @@ export function decodeAes256Password(password: string) {
 
 	return {
 		key: CryptoJS.enc.Hex.parse(keyHex),
-		iv: CryptoJS.enc.Hex.parse(ivHex)
+		iv: CryptoJS.enc.Hex.parse(ivHex),
 	};
 }
 
@@ -100,6 +100,6 @@ export async function generateRsaKeyPair(): Promise<{ publicKey: string, private
 
 	return {
 		publicKey,
-		privateKey
+		privateKey,
 	};
 }

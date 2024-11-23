@@ -22,12 +22,12 @@ const redirect = () => {
 	const redirectPath = routerStore.redirect;
 	routerStore.redirect = "";
 	router.push(redirectPath || "/");
-}
+};
 
 const afterLogin = () => {
 	sessionCredential.logged = true;
 	redirect();
-}
+};
 
 if (!sessionCredential.logged) {
 	if(sessionCredential.userID && sessionCredential.token) {
@@ -65,7 +65,7 @@ function localLogin() {
 
 onMounted(() => {
 	useLoadingBar().finish();
-})
+});
 </script>
 
 <template>

@@ -1,8 +1,8 @@
-import { ref, watch } from 'vue'
-import { defineStore } from 'pinia'
+import { ref, watch } from 'vue';
+import { defineStore } from 'pinia';
 import axios from 'axios';
 import * as PostAPI from '@/utils/my-post-api';
-import { decryptRsa, generateRsaKeyPair } from '@/utils/my-crypto';
+import { decryptRsa, generateRsaKeyPair } from 'my-crypto';
 import { useServerInfo } from "@/stores/server-info";
 
 export type PostPayloadType = {
@@ -12,7 +12,7 @@ export type PostPayloadType = {
 export const useSessionSocket = async () => {
 	const serverInfo = await useServerInfo();
 	return defineStore('session-socket', () => {
-		const sessionID = ref("")
+		const sessionID = ref("");
 		const sessionKey = ref("");
 		const serverAPIVersion = ref("");
 		const encryptionInitialised = ref(false);
@@ -21,19 +21,19 @@ export const useSessionSocket = async () => {
 			validateStatus: function (status) {
 				// Resolve only if the status is in the range of 200-499
 				return status >= 200 && status < 500;
-			}
+			},
 		});
 
 		watch(serverInfo, (newValue, oldValue) => {
 			if (newValue.hostURL !== oldValue.hostURL) axiosInstance.defaults.baseURL = newValue.hostURL;
-		}, { deep: true })
+		}, { deep: true });
 
 		const post = <T = unknown>(route: string, data: PostPayloadType) => {
-			return PostAPI.post<T>(route, { id: sessionID.value, ...data }, axiosInstance)
+			return PostAPI.post<T>(route, { id: sessionID.value, ...data }, axiosInstance);
 		};
 		const postAES = <T = unknown>(route: string, data: unknown) => {
 			return PostAPI.postAES<T>(route, data, sessionID.value, sessionKey.value, axiosInstance);
-		}
+		};
 
 		function handShake() {
 			return new Promise<void>(async (resolve, reject) => {
@@ -52,7 +52,7 @@ export const useSessionSocket = async () => {
 							resolve();
 						}
 						else {
-							reject("Handshake failed: " + response.data.msg)
+							reject("Handshake failed: " + response.data.msg);
 						}
 					})
 					.catch((error) => {
@@ -69,7 +69,7 @@ export const useSessionSocket = async () => {
 			axiosInstance,
 			post,
 			postAES,
-			handShake
-		}
+			handShake,
+		};
 	})();
-}
+};

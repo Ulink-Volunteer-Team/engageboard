@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Icon } from "@vicons/utils";
-import { DashboardRound/*, LogInRound*/, AccountBoxRound, EventNoteRound } from "@vicons/material"
+import { DashboardRound/*, LogInRound*/, AccountBoxRound, EventNoteRound } from "@vicons/material";
 import { NFlex, useLoadingBar } from "naive-ui";
 import { RouterLink } from 'vue-router';
 import { type Component } from "vue";
@@ -17,7 +17,7 @@ const routers: RouterItemType[] = [
 	{
 		icon: DashboardRound,
 		to: "/",
-		title: "Dashboard"
+		title: "Dashboard",
 	},
 	// {
 	// 	icon: LogInRound,
@@ -27,18 +27,18 @@ const routers: RouterItemType[] = [
 	{
 		icon: AccountBoxRound,
 		to: "students",
-		title: "Students"
+		title: "Students",
 	},
 	{
 		icon: EventNoteRound,
 		to: "recruitments",
 		title: "Recruitments",
-	}
+	},
 ];
 
 const startLoadingBar = () => {
 	loadingBar.start();
-}
+};
 </script>
 
 <template>

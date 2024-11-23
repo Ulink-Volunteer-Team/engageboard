@@ -1,5 +1,5 @@
 import axios, { type AxiosInstance } from 'axios';
-import { encryptAes256, decryptAes256 } from './my-crypto';
+import { encryptAes256, decryptAes256 } from 'my-crypto';
 
 export const usingSecureConnection = location.protocol.split(":").shift() === "https" || location.href.split(":")[1].slice(2) === "localhost";
 
@@ -25,7 +25,6 @@ export function post<T = unknown>(route: string, data: unknown, axiosInstance?: 
 
 export function postAES<T = unknown>(route: string, data: unknown, sessionID: string, sessionKey: string, axiosInstance?: AxiosInstance) {
 	return new Promise<T>(async (resolve, reject) => {
-		console.log(data);
 		post<{success: boolean, data: string | T}>(route, { session: sessionID, data: usingSecureConnection ? data : encryptAes256(JSON.stringify(data), sessionKey) }, axiosInstance)
 			.then(async (rawData) => {
 				try {
@@ -38,7 +37,7 @@ export function postAES<T = unknown>(route: string, data: unknown, sessionID: st
 				}
 			}).catch((error) => {
 				reject(String(error));
-			})
-	})
+			});
+	});
 }
 

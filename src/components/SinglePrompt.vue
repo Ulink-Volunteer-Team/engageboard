@@ -5,7 +5,7 @@ import { NModal, NInput, NFlex, NButton, NP } from 'naive-ui';
 const props = defineProps({
 	title: String,
 	prompt: String,
-	placeholder: String
+	placeholder: String,
 });
 
 const visible = defineModel<boolean>("visible");

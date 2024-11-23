@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, type Component, type Ref, computed, watch, onMounted } from "vue";
 import { useMessage, NEmpty, NSelect, NInput, NDataTable, type DataTableColumns, NCard, NFlex, NButton, NIcon, NDynamicInput, NSplit, NTooltip, NSwitch, useLoadingBar } from 'naive-ui';
-import { DeleteOutlineRound, PostAddRound, SearchRound, ManageSearchRound, EditNoteRound } from "@vicons/material"
+import { DeleteOutlineRound, PostAddRound, SearchRound, ManageSearchRound, EditNoteRound } from "@vicons/material";
 import { useSessionSocket } from '@/stores/session-socket';
 import { useSessionCredentialStore } from '@/stores/session-credential';
 import router from '@/router';
@@ -26,13 +26,13 @@ if (!sessionCredential.logged) {
 const searchFilter = ref<{ key: string, value: string }[]>([]);
 const searchOptions = ref([{
 	label: "Event Name",
-	value: "eventName"
+	value: "eventName",
 }, {
 	label: "Form Filled By",
-	value: "formFilledBy"
+	value: "formFilledBy",
 }, {
 	label: "Department",
-	value: "department"
+	value: "department",
 }]);
 const searchResult = ref<RecruitmentDataType[]>([]);
 const selectedIds = ref<string[]>([]);
@@ -43,7 +43,7 @@ watch(tableMultipleSelection, () => {
 	if (tableMultipleSelection.value == false && selectedIds.value.length > 0) {
 		selectedIds.value = selectedIds.value.slice(0, 1);
 	}
-})
+});
 
 let timer: number | undefined;
 function updateSearchResult() {
@@ -58,7 +58,7 @@ function updateSearchResult() {
 		if (values.length === 0 || fields.length === 0) {
 			searchResult.value = [];
 			loading.value = false;
-			return
+			return;
 		}
 		for (let i = 0; i < fields.length; i++) {
 			const field = fields[i];
@@ -66,7 +66,7 @@ function updateSearchResult() {
 			if (!["eventName", "formFilledBy", "department"].includes(field)) {
 				message.error("Invalid search field");
 				loading.value = false;
-				return
+				return;
 			}
 		}
 		getRecruitmentsByFuzzySearch(values, (fields as ("eventName" | "formFilledBy" | "department")[]), sessionSocket, sessionCredential)
@@ -89,12 +89,6 @@ const studentSelectorDialogVisible = ref(false);
 
 const recruitmentEditDialogVisible = ref(false);
 
-watch(recruitmentEditDialogVisible, () => {
-	if (!recruitmentEditDialogVisible.value) {
-		updateSearchResult();
-	}
-})
-
 const selectedRecruitments = computed(() => searchResult.value.filter(({ id }) => id ? selectedIds.value.includes(id) : false));
 const studentsToAdd = ref<string[]>([]);
 
@@ -107,7 +101,7 @@ const addRecruitmentLocal = (newRecruitmentInfo: RecruitmentDataType) => {
 			message.error("API call failed on addRecruitments");
 		})
 		.finally(() => closeNewRecruitmentDialog());
-}
+};
 
 const getRecruitmentByIDLocal = (id: string) => {
 	if (!id) {
@@ -133,7 +127,7 @@ const getRecruitmentByIDLocal = (id: string) => {
 			message.error(`API call failed on getRecruitmentByID`);
 		})
 		.finally(() => closeIDSearchDialog());
-}
+};
 
 const columns = computed(() => [
 	{
@@ -143,21 +137,21 @@ const columns = computed(() => [
 		options: [
 			"all",
 			"none",
-		]
+		],
 	},
 	{
 		title: 'ID',
 		key: 'id',
 		maxWidth: 200,
 		minWidth: 100,
-		fixed: 'left'
+		fixed: 'left',
 	},
 	{
 		title: 'Event Name',
 		key: 'eventName',
 		maxWidth: 300,
 		minWidth: 200,
-		fixed: 'left'
+		fixed: 'left',
 	},
 ]);
 
@@ -187,16 +181,16 @@ const toolBarItems = computed<ToolBarItemType[]>(() => [
 				})
 				.catch((error) => {
 					loading.value = false;
-					message.error(String(error))
-				})
+					message.error(String(error));
+				});
 		},
-		critical: true
+		critical: true,
 	},
 	{
 		title: "Add",
 		icon: PostAddRound,
 		onClick: openNewRecruitmentDialog,
-		critical: false
+		critical: false,
 	},
 	{
 		title: "Search by Filter",
@@ -208,7 +202,7 @@ const toolBarItems = computed<ToolBarItemType[]>(() => [
 		title: "Search by ID",
 		icon: SearchRound,
 		onClick: openIDSearchDialog,
-		critical: false
+		critical: false,
 	},
 	{
 		title: notAvailableLabel("Edit", tableMultipleSelection).value,
@@ -221,13 +215,13 @@ const toolBarItems = computed<ToolBarItemType[]>(() => [
 			recruitmentEditDialogVisible.value = true;
 		},
 		critical: false,
-		disabled: tableMultipleSelection.value
-	}
+		disabled: tableMultipleSelection.value,
+	},
 ]);
 
 onMounted(() => {
 	useLoadingBar().finish();
-})
+});
 </script>
 
 <template>
@@ -323,7 +317,7 @@ onMounted(() => {
 		<recruitment-display-dialog v-model:visible="recruitmentDisplayDialogVisible"
 			:recruitment="selectedRecruitments[0]" />
 		<student-selector-dialog v-model:visible="studentSelectorDialogVisible" v-model:value="studentsToAdd" />
-		<recruitment-edit-dialog v-model:visible="recruitmentEditDialogVisible" :recruitmentID="selectedRecruitments[0]?.id" />
+		<recruitment-edit-dialog v-model:visible="recruitmentEditDialogVisible" :recruitmentID="selectedRecruitments[0]?.id" @confirmed="updateSearchResult"/>
 	</div>
 </template>
 

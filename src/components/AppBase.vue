@@ -3,7 +3,7 @@ import RouterBar from "@/router/RouterBar.vue";
 import { useSessionCredentialStore } from "@/stores/session-credential";
 import { useThemeVars } from "naive-ui";
 import router from "@/router";
-import { onMounted, computed } from "vue";
+import { onMounted, watch, computed, ref } from "vue";
 
 const themeVars = useThemeVars();
 const backgroundColour = computed(() => themeVars.value.bodyColor);
@@ -17,14 +17,15 @@ onMounted(async () => {
 	}
 });
 
-const routerViewLeft = computed(() => {
+const routerViewLeft = ref("10em");
+watch(router.currentRoute, () => {
 	if(router.currentRoute.value.path === "/login") {
 		return "0em";
 	}
 	else {
 		return "10em";
 	}
-})
+});
 </script>
 
 <template>
