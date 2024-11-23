@@ -6,6 +6,11 @@ export type StudentType = {
 	id: string
 }
 
+export type EventRecordType = {
+	eventID: string,
+    studentID: string,
+}
+
 export type RecruitmentDataType = {
 	id?: string;
     department: string;
@@ -198,9 +203,9 @@ export const getAllRecruitmentInfo = async (sessionSocket: Awaited<ReturnType<ty
 	});
 }
 
-export const getAllStudentInfo = async (sessionSocket: Awaited<ReturnType<typeof useSessionSocket>>, sessionCredential: Awaited<ReturnType<typeof useSessionCredentialStore>>) => {
+export const getAllStudents = async (sessionSocket: Awaited<ReturnType<typeof useSessionSocket>>, sessionCredential: Awaited<ReturnType<typeof useSessionCredentialStore>>) => {
 	return new Promise<StudentType[]>(async (resolve, reject) => {
-		sessionSocket.postAES<{ students: StudentType[] }>("/get-all-student-info", {
+		sessionSocket.postAES<{ students: StudentType[] }>("/get-all-students", {
 			token: sessionCredential.token
 		})
 			.then((data) => {
@@ -219,11 +224,72 @@ export const getVolunteersIDsByRecruitmentIDs = async (ids: string[], sessionSoc
 			ids: ids
 		})
 			.then((data) => {
-				console.log(data);
 				resolve(data.volunteers);
 			})
 			.catch((error) => {
 				reject(String(error));
+			})
+	});
+}
+
+export const updateRecruitments = async (recruitments: RecruitmentDataType[], sessionSocket: Awaited<ReturnType<typeof useSessionSocket>>, sessionCredential: Awaited<ReturnType<typeof useSessionCredentialStore>>) => {
+	return new Promise<void>(async (resolve, reject) => {
+		sessionSocket.postAES<{ success: boolean }>("/update-recruitments", {
+			token: sessionCredential.token,
+			recruitments: recruitments
+		})
+			.then(() => {
+				resolve();
+			})
+			.catch((error) => {
+				reject(String(error).includes("API") ? "Fail to update recruitment: " + error : "Unknown error: " + error.split(":").pop());
+			})
+	});
+}
+
+export const addEventRecords = async (eventRecords: EventRecordType[], sessionSocket: Awaited<ReturnType<typeof useSessionSocket>>, sessionCredential: Awaited<ReturnType<typeof useSessionCredentialStore>>) => {
+	return new Promise<void>(async (resolve, reject) => {
+		sessionSocket.postAES<{ success: boolean }>("/add-event-records", {
+			token: sessionCredential.token,
+			records: eventRecords
+		})
+			.then(() => {
+				resolve();
+			})
+			.catch((error) => {
+				reject(String(error).includes("API") ? "Fail to add event record: " + error : "Unknown error: " + error.split(":").pop());
+			})
+	});
+}
+
+export const updateRecordsOfAStudent = async (studentID: string, eventIDs: EventRecordType[], sessionSocket: Awaited<ReturnType<typeof useSessionSocket>>, sessionCredential: Awaited<ReturnType<typeof useSessionCredentialStore>>) => {
+	return new Promise<void>(async (resolve, reject) => {
+		sessionSocket.postAES<{ success: boolean }>("/update-records-of-a-student", {
+			token: sessionCredential.token,
+			studentID,
+        	eventIDs,
+		})
+			.then(() => {
+				resolve();
+			})
+			.catch((error) => {
+				reject(String(error).includes("API") ? "Fail to update records of a student: " + error : "Unknown error: " + error.split(":").pop());
+			})
+	});
+}
+
+export const updateStudentsOfAnEvent = async (eventID: string, studentIDs: string[], sessionSocket: Awaited<ReturnType<typeof useSessionSocket>>, sessionCredential: Awaited<ReturnType<typeof useSessionCredentialStore>>) => {
+	return new Promise<void>(async (resolve, reject) => {
+		sessionSocket.postAES<{ success: boolean }>("/update-students-of-an-event", {
+			token: sessionCredential.token,
+			eventID,
+			studentIDs
+		})
+			.then(() => {
+				resolve();
+			})
+			.catch((error) => {
+				reject(String(error).includes("API") ? "Fail to update students of an event: " + error : "Unknown error: " + error.split(":").pop());
 			})
 	});
 }

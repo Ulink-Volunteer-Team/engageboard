@@ -1,25 +1,32 @@
 <script setup lang="ts">
-import { ref } from 'vue';
 import { NModal, NInput, NFlex, NButton, NDatePicker, NInputNumber, NForm, NFormItem } from 'naive-ui';
 import { type RecruitmentDataType } from '@/utils/server-apis';
 
 const emit = defineEmits(["confirm"]);
+
 const visible = defineModel<boolean>("visible");
 
-const initialData: RecruitmentDataType = {
+const getInitialData = () => JSON.parse(JSON.stringify({
 	department: '',
 	formFilledBy: '',
 	eventName: '',
 	eventTime: Date.now(),
 	volunteerHours: 0,
 	additionalNotes: '',
-}
+})) as RecruitmentDataType;
 
-const recruitment = ref<RecruitmentDataType>(JSON.parse(JSON.stringify(initialData)));
+const recruitment = defineModel<RecruitmentDataType>("recruitment", {default: {
+	department: '',
+	formFilledBy: '',
+	eventName: '',
+	eventTime: Date.now(),
+	volunteerHours: 0,
+	additionalNotes: '',
+}});
 
 const handleConfirm = () => {
 	emit('confirm', recruitment.value);
-	recruitment.value = JSON.parse(JSON.stringify(initialData));
+	recruitment.value = getInitialData();
 };
 </script>
 

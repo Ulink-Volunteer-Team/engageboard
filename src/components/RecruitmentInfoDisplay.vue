@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue';
-import { NThing, NTable, NTr, NTd, NTbody, NThead, NDataTable, useMessage } from 'naive-ui';
+import { ref, watch } from 'vue';
+import { NThing, NTable, NTr, NTd, NTbody, NThead, NDataTable, useMessage, NTabs, NTabPane } from 'naive-ui';
 import type { RecruitmentDataType, StudentType } from '@/utils/server-apis';
 import { getVolunteersIDsByRecruitmentIDs, getStudentsByIDs } from '@/utils/server-apis';
 import { useSessionSocket } from '@/stores/session-socket';
@@ -9,11 +9,11 @@ import { useSessionCredentialStore } from '@/stores/session-credential';
 const message = useMessage();
 const columns = [
 	{
-		title: "ID",
+		title: "Student ID",
 		key: "id"
 	},
 	{
-		title: "Name",
+		title: "Student Name",
 		key: "name"
 	},
 ]
@@ -53,53 +53,56 @@ watch(props, async () => {
 	updateParticipants();
 }, { deep: true });
 
-onMounted(async () => {
-	updateParticipants();
-})
+updateParticipants();
 </script>
 
 <template>
 	<div class="outer-container">
-		<div class="thing">
-			<n-thing>
-				<template #header>{{ props.recruitment.eventName }}</template>
-				<template #header-extra>
-					<pre>{{ new Date(props.recruitment.eventTime).toLocaleString() }}</pre>
-				</template>
+		<n-tabs type="segment" animated class="tab" default-value="info" pane-style="overflow: auto; height: 100%;" style="height: 100%;" pane-wrapper-style="height: 100%;">
+			<n-tab-pane name="info" tab="Info">
+				<n-thing>
+					<template #header>{{ props.recruitment.eventName }}</template>
+					<template #header-extra>
+						<pre>{{ new Date(props.recruitment.eventTime).toLocaleString() }}</pre>
+					</template>
 
-				<n-table>
-					<n-thead>
-						<n-tr>
-							<n-td>Department</n-td>
-							<n-td>Form Filled By</n-td>
-							<n-td>Volunteer Hours</n-td>
-						</n-tr>
-					</n-thead>
-					<n-tbody>
-						<n-tr>
-							<n-td>{{ props.recruitment.department }} 1</n-td>
-							<n-td>{{ props.recruitment.formFilledBy }}</n-td>
-							<n-td>
-								<pre>{{ props.recruitment.volunteerHours }}</pre>
-							</n-td>
-						</n-tr>
-					</n-tbody>
-				</n-table>
+					<n-table>
+						<n-thead>
+							<n-tr>
+								<n-td>Department</n-td>
+								<n-td>Form Filled By</n-td>
+								<n-td>Volunteer Hours</n-td>
+							</n-tr>
+						</n-thead>
+						<n-tbody>
+							<n-tr>
+								<n-td>{{ props.recruitment.department }} 1</n-td>
+								<n-td>{{ props.recruitment.formFilledBy }}</n-td>
+								<n-td>
+									<pre>{{ props.recruitment.volunteerHours }}</pre>
+								</n-td>
+							</n-tr>
+						</n-tbody>
+					</n-table>
 
-				<template #description><label>ID:
-						<pre style="display: inline">{{ props.recruitment.id }}</pre>
-					</label></template>
-				<template #footer>
-					<div style="height: 100%; width: 100%; overflow: auto">
-						{{ props.recruitment.additionalNotes }}
-					</div>
-				</template>
-			</n-thing>
-		</div>
+					<template #description><label>ID:
+							<pre style="display: inline; user-select: text;">{{ props.recruitment.id }}</pre>
+						</label></template>
+					<template #footer>
+						<div style="height: 100%; width: 100%; overflow: auto; max-height: 12em;">
+							{{ props.recruitment.additionalNotes }}
+						</div>
+					</template>
+				</n-thing>
+			</n-tab-pane>
+			<n-tab-pane name="participants" tab="Participants">
+				<div style="height: 100%;">
 
-		<div class="table">
-			<n-data-table :columns="columns" :data="participants" virtual-scroll flex-height style="height: 100%;" :loading="loading"/>
-		</div>
+				<n-data-table :columns="columns" :data="participants" style="height: 100%; min-height: 12em;" flex-height :row-key="row => row.id"
+					:loading="loading" />
+				</div>
+			</n-tab-pane>
+		</n-tabs>
 	</div>
 </template>
 
@@ -107,33 +110,10 @@ onMounted(async () => {
 .outer-container {
 	height: 100%;
 	width: 100%;
-
-	display: grid;
-	grid-template-columns: 1fr;
-	grid-template-rows: 1fr 1fr;
-	gap: 8px;
 }
 
-.thing {
+.tab {
 	height: 100%;
 	width: 100%;
-
-	min-width: 0;
-	min-height: 0;
-
-	grid-column: 1 / 2;
-	grid-row: 1 / 2;
-	overflow: scroll;
-}
-
-.table {
-	height: 100%;
-	width: 100%;
-
-	min-width: 0;
-	min-height: 0;
-
-	grid-column: 1 / 2;
-	grid-row: 2 / 3;
 }
 </style>

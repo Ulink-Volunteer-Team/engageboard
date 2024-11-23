@@ -12,6 +12,7 @@ import { useRouterStore } from '@/stores/router-store';
 import RecruitmentDisplayDialog from "@/components/RecruitmentDisplayDialog.vue";
 import RecruitmentInfoDisplay from "@/components/RecruitmentInfoDisplay.vue";
 import StudentSelectorDialog from "@/components/StudentSelectorDialog.vue";
+import RecruitmentEditDialog from "@/components/RecruitmentEditDialog.vue";
 
 const message = useMessage();
 const sessionCredential = await useSessionCredentialStore();
@@ -37,7 +38,7 @@ const searchResult = ref<RecruitmentDataType[]>([]);
 const selectedIds = ref<string[]>([]);
 const loading = ref(false);
 
-const tableMultipleSelection = ref(true);
+const tableMultipleSelection = ref(false);
 watch(tableMultipleSelection, () => {
 	if (tableMultipleSelection.value == false && selectedIds.value.length > 0) {
 		selectedIds.value = selectedIds.value.slice(0, 1);
@@ -85,6 +86,14 @@ const closeIDSearchDialog = () => recruitmentIDSearchDialogVisible.value = false
 
 const recruitmentDisplayDialogVisible = ref(false);
 const studentSelectorDialogVisible = ref(false);
+
+const recruitmentEditDialogVisible = ref(false);
+
+watch(recruitmentEditDialogVisible, () => {
+	if (!recruitmentEditDialogVisible.value) {
+		updateSearchResult();
+	}
+})
 
 const selectedRecruitments = computed(() => searchResult.value.filter(({ id }) => id ? selectedIds.value.includes(id) : false));
 const studentsToAdd = ref<string[]>([]);
@@ -209,7 +218,7 @@ const toolBarItems = computed<ToolBarItemType[]>(() => [
 				message.error("Please select at least one recruitment");
 				return;
 			}
-			recruitmentDisplayDialogVisible.value = true;
+			recruitmentEditDialogVisible.value = true;
 		},
 		critical: false,
 		disabled: tableMultipleSelection.value
@@ -223,30 +232,19 @@ onMounted(() => {
 
 <template>
 	<div class="outer-container">
-		<n-split direction="horizontal" style="height: 100%;" :max="0.8" :min="0.2" :default-size="0.7"
-			pane2-style="overflow: visible; min-width: 0;">
+		<n-split direction="vertical" style="height: 100%;" :max="0.7" :min="0.2" :default-size="0.4"
+			pane1-style="overflow: visible; min-width: 0;">
 			<template #1>
-				<!-- Search Result -->
-				<n-data-table v-model:checked-row-keys="selectedIds" :columns="(columns as DataTableColumns)"
-					:data="searchResult" :row-key="row => row.id" :loading="loading" virtual-scroll flex-height
-					class="search-result" />
-			</template>
-
-			<template #resize-trigger>
-				<div class="resize-trigger-vertical resize-trigger"></div>
-			</template>
-
-			<template #2>
 				<!-- Search Filter & Recruitment Details-->
-				<n-split direction="vertical" style="height: 100%; overflow: visible;" :max="0.7" :min="0.2"
-					:default-size="0.3">
+				<n-split direction="horizontal" style="height: 100%; overflow: visible;" :max="0.7" :min="0.3"
+					:default-size="0.4">
 					<template #1>
 						<!-- Filter -->
 						<div class="filter-tools-container">
 							<n-card content-style="padding: 0px;" class="search-bar" size="small" title="Search Filter">
 								<n-dynamic-input preset="pair" style="padding: 8px; overflow-x: auto; height: 100%;"
 									v-model:value="searchFilter" :on-create="() => ({ key: '', value: '' })"
-									item-style="width: fit-content;">
+									item-style="width: max(100%, fit-content);">
 									<template #default="{ value }">
 										<div style="display: flex; align-items: center;">
 											<n-flex :wrap="false" style="width: 100%;">
@@ -260,7 +258,7 @@ onMounted(() => {
 								</n-dynamic-input>
 							</n-card>
 							<!-- tool bar -->
-							<n-card class="tool-bar" style="padding: 8px; min-width: 0; overflow-x: auto;"
+							<n-card class="tool-bar" style="padding: 8px; min-width: 0; min-height:0; overflow-x: auto;"
 								content-style="padding: 0px;">
 								<n-flex :wrap="false" justify="left" :align="'center'">
 									<n-tooltip trigger="hover" v-for="item in toolBarItems" :key="item.title">
@@ -292,7 +290,7 @@ onMounted(() => {
 
 					<!-- Recruitment Details -->
 					<template #2>
-						<n-card size="small" class="search-result">
+						<n-card size="small" class="search-result" content-style="min-width: 0; min-height:0;">
 							<div v-if="selectedRecruitments.length === 0 || searchFilter.length === 0"
 								style="display: grid; place-items: center; height: 100%; width: 100%;">
 								<n-empty description="Please Select a Recruitment or Input Search Filter" />
@@ -304,6 +302,17 @@ onMounted(() => {
 					</template>
 				</n-split>
 			</template>
+
+			<template #2>
+				<!-- Search Result -->
+				<n-data-table v-model:checked-row-keys="selectedIds" :columns="(columns as DataTableColumns)"
+					:data="searchResult" :row-key="row => row.id" :loading="loading" virtual-scroll flex-height
+					class="search-result" />
+			</template>
+
+			<template #resize-trigger>
+				<div class="resize-trigger-vertical resize-trigger"></div>
+			</template>
 		</n-split>
 
 		<!-- Dialog -->
@@ -314,6 +323,7 @@ onMounted(() => {
 		<recruitment-display-dialog v-model:visible="recruitmentDisplayDialogVisible"
 			:recruitment="selectedRecruitments[0]" />
 		<student-selector-dialog v-model:visible="studentSelectorDialogVisible" v-model:value="studentsToAdd" />
+		<recruitment-edit-dialog v-model:visible="recruitmentEditDialogVisible" :recruitmentID="selectedRecruitments[0]?.id" />
 	</div>
 </template>
 
@@ -368,15 +378,16 @@ onMounted(() => {
 }
 
 .resize-trigger-vertical {
-	width: 4px;
-	height: 100%;
-	cursor: ew-resize;
-}
-
-.resize-trigger-horizontal {
 	width: 100%;
 	height: 4px;
 	cursor: ns-resize;
+}
+
+.resize-trigger-horizontal {
+	width: 4px;
+	height: 100%;
+	cursor: ew-resize;
+
 }
 
 .resize-trigger:hover {

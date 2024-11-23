@@ -25,6 +25,7 @@ export function post<T = unknown>(route: string, data: unknown, axiosInstance?: 
 
 export function postAES<T = unknown>(route: string, data: unknown, sessionID: string, sessionKey: string, axiosInstance?: AxiosInstance) {
 	return new Promise<T>(async (resolve, reject) => {
+		console.log(data);
 		post<{success: boolean, data: string | T}>(route, { session: sessionID, data: usingSecureConnection ? data : encryptAes256(JSON.stringify(data), sessionKey) }, axiosInstance)
 			.then(async (rawData) => {
 				try {

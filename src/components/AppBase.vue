@@ -7,6 +7,7 @@ import { onMounted, computed } from "vue";
 
 const themeVars = useThemeVars();
 const backgroundColour = computed(() => themeVars.value.bodyColor);
+document.body.style.backgroundColor = backgroundColour.value;
 
 onMounted(async () => {
 	const sessionCredentialStore = await useSessionCredentialStore();
@@ -15,12 +16,21 @@ onMounted(async () => {
 		router.push("/login");
 	}
 });
+
+const routerViewLeft = computed(() => {
+	if(router.currentRoute.value.path === "/login") {
+		return "0em";
+	}
+	else {
+		return "10em";
+	}
+})
 </script>
 
 <template>
 	<div class="app" :style="{ backgroundColor: backgroundColour }">
 		<RouterBar class="router-bar" />
-		<div class="router-view">
+		<div class="router-view" :style="{left: routerViewLeft, backgroundColor: backgroundColour}">
 			<RouterView style="height: 100%; width: 100%;" v-slot="{ Component }">
 				<Suspense>
 					<component :is="Component" />
@@ -49,7 +59,6 @@ onMounted(async () => {
 	position: absolute;
 	top: var(--margin);
 	bottom: var(--margin);
-	left: 10em;
 	right: var(--margin);
 }
 </style>
