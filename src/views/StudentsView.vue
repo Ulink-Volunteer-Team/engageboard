@@ -212,7 +212,24 @@ onMounted(() => {
 
 	justify-items: center;
 	align-items: center;
+
+	animation: fade-in 0.3s ease-in;
 }
+
+@keyframes fade-in {
+	0% {
+		opacity: 0;
+	}
+
+	30% {
+		opacity: 0;
+	}
+
+	100% {
+		overflow: 1;
+	}
+}
+
 
 .search-bar {
 	grid-column: 1 / 2;

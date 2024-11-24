@@ -1,4 +1,5 @@
 import { fileURLToPath, URL } from 'node:url';
+import path from 'path';
 import dotenv from 'dotenv';
 
 import { defineConfig } from 'vite';
@@ -18,8 +19,10 @@ export default defineConfig(({ mode }) => {
 	console.log(`Using server host: ${host}`);
 
 	const cryptoEntry = process.env.HTTP_COMPATIBLE === 'true'
-		? 'src/utils/my-crypto.http.ts'
-		: 'src/utils/my-crypto.https.ts';
+		? './src/utils/my-crypto.http.ts'
+		: './src/utils/my-crypto.https.ts';
+
+	console.log("Using crypto entry: " + cryptoEntry);
 
 	return {
 		mode,
@@ -35,7 +38,7 @@ export default defineConfig(({ mode }) => {
 		resolve: {
 			alias: {
 				'@': fileURLToPath(new URL('./src', import.meta.url)),
-				'my-crypto': cryptoEntry,
+				'my-crypto': path.resolve(__dirname, cryptoEntry),
 			},
 		},
 		build: {

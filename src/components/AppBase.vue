@@ -17,14 +17,18 @@ onMounted(async () => {
 	}
 });
 
-const routerViewLeft = ref("10em");
-watch(router.currentRoute, () => {
+const getRouterViewLeft = () => {
 	if(router.currentRoute.value.path === "/login") {
 		return "0em";
 	}
 	else {
 		return "10em";
 	}
+};
+
+const routerViewLeft = ref(getRouterViewLeft());
+watch(router.currentRoute, () => {
+	routerViewLeft.value = getRouterViewLeft();
 });
 </script>
 

@@ -31,7 +31,7 @@ const handleConfirm = () => {
 </script>
 
 <template>
-	<n-modal v-model:show="visible" preset="dialog" title="Add new recruitment">
+	<n-modal v-model:show="visible" preset="dialog" title="Add new recruitment" style="width: 28em;">
 		<n-form label-placement="top">
 			<n-flex :wrap="false" style="width: 100%;">
 				<n-form-item label="Department" path="department">

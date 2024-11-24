@@ -325,6 +325,7 @@ onMounted(() => {
 .outer-container {
 	height: 100%;
 	width: 100%;
+	animation: fade-in 0.3s ease-in;
 }
 
 .tool-bar {
@@ -387,5 +388,19 @@ onMounted(() => {
 .resize-trigger:hover {
 	background-color: var(--n-resize-trigger-color-hover);
 	box-shadow: 0 0 16px 0px var(--n-resize-trigger-color-hover);
+}
+
+@keyframes fade-in {
+	0% {
+		opacity: 0;
+	}
+
+	30% {
+		opacity: 0;
+	}
+
+	100% {
+		overflow: 1;
+	}
 }
 </style>

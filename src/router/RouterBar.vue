@@ -36,7 +36,15 @@ const routers: RouterItemType[] = [
 	},
 ];
 
-const startLoadingBar = () => {
+let oldPath = "";
+
+const startLoadingBar = (to: string) => {
+	if(oldPath === to) {
+		loadingBar.finish();
+		return;
+	}
+
+	oldPath = to;
 	loadingBar.start();
 };
 </script>
@@ -44,7 +52,7 @@ const startLoadingBar = () => {
 <template>
 	<n-flex vertical>
 		<RouterLink v-for="(router) in routers" :to="router.to" :title="router.title" :key="router.to"
-			class="router-item" @click="startLoadingBar">
+			class="router-item" @click="() => startLoadingBar(router.to)">
 			<div
 				style="display: flex; align-items: center; justify-content: center; grid-column: 1 / 2; grid-row: 1 / 2">
 				<Icon :size="24">

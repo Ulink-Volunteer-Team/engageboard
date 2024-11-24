@@ -75,7 +75,7 @@ onMounted(() => {
 				<p>Server API Version: {{ sessionSocket.serverAPIVersion || "Loading" }}</p>
 			</template>
 
-			<n-form ref="formRef" :model="userCredential" label-placement="left" label-width="auto">
+			<n-form ref="formRef" :model="userCredential" label-placement="top" label-width="auto">
 				<n-form-item path="user-name" label="User ID">
 					<n-input v-model:value="userCredential.userName" @keydown.enter.prevent type="text"
 						placeholder="user@example.com" />
@@ -116,7 +116,7 @@ onMounted(() => {
 	display: grid;
 	place-items: center;
 	align-items: center;
-	animation: fade-in 0.2s ease-in;
+	animation: fade-in 0.3s ease-in;
 }
 
 .login-card {

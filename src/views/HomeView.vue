@@ -26,4 +26,22 @@ onMounted(() => {
 </template>
 
 <style scoped>
+@keyframes fade-in {
+	0% {
+		opacity: 0;
+	}
+
+	30% {
+		opacity: 0;
+	}
+
+	100% {
+		overflow: 1;
+	}
+}
+
+.outer-container {
+	overflow: hidden;
+	animation: fade-in 0.3s ease-in;
+}
 </style>
