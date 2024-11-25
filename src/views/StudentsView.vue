@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { ref, watch, type Component, onMounted } from "vue";
-import { useMessage, NEmpty, NInput, NDataTable, type DataTableColumns, NCard, NFlex, NButton, NIcon, useDialog, useLoadingBar } from 'naive-ui';
+import { ref, watch, type Component, onMounted, computed } from "vue";
+import { useMessage, NEmpty, NInput, NDataTable, type DataTableColumns, NTooltip, NSwitch, NSplit, NCard, NFlex, NButton, NIcon, useDialog, useLoadingBar } from 'naive-ui';
 import { DeleteOutlineRound, PersonAddAlt1Round, SearchRound } from "@vicons/material";
 import { useSessionSocket } from '@/stores/session-socket';
 import { useSessionCredentialStore } from '@/stores/session-credential';
 import router from '@/router';
 import { type StudentType, getStudentsByFuzzySearch, removeStudent, addStudents, getStudentByID } from "@/utils/server-apis";
 import StudentInfoInput from "@/components/StudentInfoInput.vue";
+import StudentInfoDisplay from "@/components/StudentInfoDisplay.vue";
 import SinglePrompt from "@/components/SinglePrompt.vue";
 import { useRouterStore } from '@/stores/router-store';
 
@@ -22,6 +23,12 @@ if (!sessionCredential.logged) {
 
 const searchName = ref<string>("");
 const searchResult = ref<StudentType[]>([]);
+const tableMultipleSelection = ref(false);
+watch(tableMultipleSelection, () => {
+	if (tableMultipleSelection.value == false && selectedIds.value.length > 0) {
+		selectedIds.value = selectedIds.value.slice(0, 1);
+	}
+});
 const selectedIds = ref<string[]>([]);
 const loading = ref(false);
 
@@ -67,7 +74,7 @@ const addStudentsLocal = (newStudentInfo: StudentType) => {
 		.catch(() => {
 			message.error("API call failed on addStudents");
 		})
-		.finally(() => closeNewStudentDialog());
+		.finally(closeNewStudentDialog);
 };
 
 const getStudentByIDLocal = (studentID: string) => {
@@ -95,10 +102,11 @@ const getStudentByIDLocal = (studentID: string) => {
 		.finally(() => closeIDSearchDialog());
 };
 
-const columns: DataTableColumns<StudentType> = [
+const columns = computed<DataTableColumns<StudentType>>(() => [
 	{
 		type: 'selection',
 		fixed: 'left',
+		multiple: tableMultipleSelection.value,
 		options: [
 			"all",
 			"none",
@@ -118,7 +126,7 @@ const columns: DataTableColumns<StudentType> = [
 		minWidth: 200,
 		fixed: 'left',
 	},
-];
+]);
 
 const toolBarItems: Array<{ title: string, icon: Component, onClick: () => void, critical: boolean }> = [
 	{
@@ -163,36 +171,63 @@ onMounted(() => {
 
 <template>
 	<div class="outer-container">
-		<!-- Search Bar -->
-		<n-input type="text" v-model:value="searchName" placeholder="Search Name" class="search-bar" />
 
-		<!-- Tool Bar -->
-		<n-card content-style="padding: 8px;" class="tool-bar">
-			<n-flex justify="left" :align="'center'" style="height: 2em;">
-				<!-- Tool Bar Items -->
-				<n-button strong secondary style="height: 2em; width: 2em;" v-for="item in toolBarItems"
-					:key="item.title" @click="item.onClick" :type="(item.critical ? 'error' : 'primary')">
-					<template #icon>
-						<n-icon>
-							<component :is="item.icon" />
-						</n-icon>
-					</template>
-				</n-button>
-			</n-flex>
-		</n-card>
 
 		<!-- Search Result -->
-		<n-card content-style="padding: 0px;" class="search-result">
-			<!-- No Data -->
-			<div v-if="(searchResult.length === 0) && !loading"
-				style="display: grid; place-items: center; height: 100%;">
-				<n-empty :description="searchName === '' ? 'Please Input the Search Name' : 'No Data'" />
-			</div>
-			<!-- Data -->
-			<n-data-table v-else v-model:checked-row-keys="selectedIds" :columns="columns" :data="searchResult"
-				:row-key="row => row.id" :loading="loading" virtual-scroll flex-height style="height: 100%;"
-				:bordered="false" />
-		</n-card>
+		<n-split direction="horizontal" style="height: 100%; width: 100%; overflow: visible;">
+			<template #1>
+				<n-data-table v-model:checked-row-keys="selectedIds" :columns="columns" :data="searchResult"
+					class="search-result" :row-key="row => row.id" :loading="loading" virtual-scroll flex-height />
+			</template>
+
+			<template #resize-trigger>
+				<div class="resize-trigger-horizontal resize-trigger"></div>
+			</template>
+
+			<template #2>
+				<div class="right-container">
+					<!-- Search Bar -->
+					<n-input type="text" v-model:value="searchName" placeholder="Search Name" class="search-bar" />
+
+					<!-- Tool Bar -->
+					<n-card content-style="padding: 8px;" class="tool-bar">
+						<n-flex justify="left" :align="'center'" style="height: 2em;">
+							<!-- Tool Bar Items -->
+							<n-tooltip v-for="item in toolBarItems" :key="item.title" trigger="hover"
+								placement="bottom">
+								<template #trigger>
+									<n-button strong secondary style="height: 2em; width: 2em;" @click="item.onClick"
+										:type="(item.critical ? 'error' : 'primary')">
+										<template #icon>
+											<n-icon>
+												<component :is="item.icon" />
+											</n-icon>
+										</template>
+									</n-button>
+								</template>
+								<span>{{ item.title }}</span>
+							</n-tooltip>
+							<n-tooltip trigger="hover" placement="bottom">
+								<template #trigger>
+									<n-switch v-model:value="tableMultipleSelection" />
+								</template>
+								<span>Multiple Selection</span>
+							</n-tooltip>
+						</n-flex>
+					</n-card>
+					<n-card style="height: 100%; width: 100; min-width: 0; min-height: 0;" size="small">
+						<div v-if="selectedIds.length === 0" style="display: grid; place-items: center; height: 100%;">
+							<n-empty description="Please select a student" />
+						</div>
+						<!-- Selected Student -->
+						<student-info-display v-else
+							:student="searchResult.find(student => student.id === selectedIds[0])!" />
+					</n-card>
+				</div>
+			</template>
+		</n-split>
+		<!-- Data -->
+
 
 		<!-- Dialog -->
 		<student-info-input v-model:visible="newStudentDialogVisible" @confirm="addStudentsLocal" />
@@ -203,15 +238,8 @@ onMounted(() => {
 
 <style scoped>
 .outer-container {
-	display: grid;
-	grid-template-columns: 1fr;
-	grid-template-rows: 2em 3em auto;
-	align-content: stretch;
-	align-items: stretch;
-	gap: 8px;
-
-	justify-items: center;
-	align-items: center;
+	width: 100%;
+	height: 100%;
 
 	animation: fade-in 0.3s ease-in;
 }
@@ -243,13 +271,42 @@ onMounted(() => {
 }
 
 .search-result {
-	grid-column: 1 / 2;
-	grid-row: 3 / 4;
+	width: 100%;
+	height: 100%;
+	min-width: 0;
+	min-height: 0;
+
+	padding: 4px;
+}
+
+.right-container {
 	width: 100%;
 	height: 100%;
 
 	display: grid;
-	align-content: stretch;
-	align-items: stretch;
+	grid-template-columns: 1fr;
+	grid-template-rows: 34px 46px 1fr;
+	gap: 8px;
+
+	padding: 4px;
+}
+
+.resize-trigger {
+	background-color: transparent;
+	transition: all 0.2s;
+	border-radius: 2px;
+	box-shadow: none;
+}
+
+.resize-trigger-horizontal {
+	width: 4px;
+	height: 100%;
+	cursor: ew-resize;
+
+}
+
+.resize-trigger:hover {
+	background-color: var(--n-resize-trigger-color-hover);
+	box-shadow: 0 0 16px 0px var(--n-resize-trigger-color-hover);
 }
 </style>

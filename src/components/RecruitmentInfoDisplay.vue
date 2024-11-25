@@ -86,7 +86,7 @@ updateParticipants();
 					</n-table>
 
 					<template #description><label>ID:
-							<pre style="display: inline; user-select: text;">{{ props.recruitment.id }}</pre>
+							<pre style="display: inline; user-select: text; cursor: text; padding: 8px;">{{ props.recruitment.id }}</pre>
 						</label></template>
 					<template #footer>
 						<div style="height: 100%; width: 100%; overflow: auto; max-height: 12em;">
@@ -110,6 +110,8 @@ updateParticipants();
 .outer-container {
 	height: 100%;
 	width: 100%;
+
+	overflow: auto;
 }
 
 .tab {

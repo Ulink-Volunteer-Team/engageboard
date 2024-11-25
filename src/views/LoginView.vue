@@ -34,11 +34,11 @@ if (!sessionCredential.logged) {
 		getTokenState(sessionSocket, sessionCredential)
 			.then((data) => {
 				if (data.valid) {
-					message.info("Login successful, using stored token and user id");
+					console.log("Login successful, using stored token and user id");
 					afterLogin();
 				}
 				else {
-					message.error("Your login has expired. Please log in again.");
+					message.error("Your login has expired. Please login again.");
 					clearSessionCredential();
 				}
 			})

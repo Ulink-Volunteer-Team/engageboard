@@ -17,7 +17,7 @@ onMounted(async () => {
 </script>
 
 <template>
-	<n-config-provider inline-theme-disabled style="width: 100%; height: 100%;" :theme=theme>
+	<n-config-provider style="width: 100%; height: 100%;" :theme=theme>
 		<n-loading-bar-provider>
 			<n-message-provider>
 				<n-modal-provider>

@@ -128,6 +128,21 @@ export const getTokenState = async (sessionSocket: Awaited<ReturnType<typeof use
 		});
 };
 
+export const getRecruitmentsByIDs = async (ids: string[], sessionSocket: Awaited<ReturnType<typeof useSessionSocket>>, sessionCredential: Awaited<ReturnType<typeof useSessionCredentialStore>>) => {
+	return new Promise<RecruitmentDataType[]>(async (resolve, reject) => {
+		sessionSocket.postAES<{ recruitments: RecruitmentDataType[] }>("/get-recruitments-by-ids", {
+			token: sessionCredential.token,
+			ids: ids,
+		})
+			.then((data) => {
+				resolve(data.recruitments);
+			})
+			.catch((error) => {
+				reject(String(error));
+			});
+	});
+};
+
 export const getRecruitmentsByFuzzySearch = async (values: string[], fields: ("department" | "formFilledBy" | "eventName")[], sessionSocket: Awaited<ReturnType<typeof useSessionSocket>>, sessionCredential: Awaited<ReturnType<typeof useSessionCredentialStore>>) => {
 	return new Promise<RecruitmentDataType[]>(async (resolve, reject) => {
 		sessionSocket.postAES<{ recruitments: RecruitmentDataType[] }>("/get-recruitments-by-fuzzy-search", {
@@ -220,6 +235,21 @@ export const getAllStudents = async (sessionSocket: Awaited<ReturnType<typeof us
 export const getVolunteersIDsByRecruitmentIDs = async (ids: string[], sessionSocket: Awaited<ReturnType<typeof useSessionSocket>>, sessionCredential: Awaited<ReturnType<typeof useSessionCredentialStore>>) => {
 	return new Promise<[string, string[]][]>(async (resolve, reject) => {
 		sessionSocket.postAES<{ volunteers: [string, string[]][] }>("/get-volunteers-by-recruitment", {
+			token: sessionCredential.token,
+			ids: ids,
+		})
+			.then((data) => {
+				resolve(data.volunteers);
+			})
+			.catch((error) => {
+				reject(String(error));
+			});
+	});
+};
+
+export const getRecruitmentIDsByVolunteerIDs = async (ids: string[], sessionSocket: Awaited<ReturnType<typeof useSessionSocket>>, sessionCredential: Awaited<ReturnType<typeof useSessionCredentialStore>>) => {
+	return new Promise<[string, string[]][]>(async (resolve, reject) => {
+		sessionSocket.postAES<{ volunteers: [string, string[]][] }>("/get-recruitments-by-volunteers", {
 			token: sessionCredential.token,
 			ids: ids,
 		})

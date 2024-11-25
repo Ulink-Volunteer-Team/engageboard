@@ -2,8 +2,10 @@
 import { Icon } from "@vicons/utils";
 import { DashboardRound/*, LogInRound*/, AccountBoxRound, EventNoteRound } from "@vicons/material";
 import { NFlex, useLoadingBar } from "naive-ui";
-import { RouterLink } from 'vue-router';
+import { RouterLink, useRouter } from 'vue-router';
 import { type Component } from "vue";
+
+const router = useRouter();
 
 type RouterItemType = {
 	icon: Component,
@@ -36,23 +38,19 @@ const routers: RouterItemType[] = [
 	},
 ];
 
-let oldPath = "";
-
-const startLoadingBar = (to: string) => {
-	if(oldPath === to) {
+router.beforeEach((to, from) => {
+	if(from.path === to.path) {
 		loadingBar.finish();
 		return;
 	}
-
-	oldPath = to;
 	loadingBar.start();
-};
+});
 </script>
 
 <template>
 	<n-flex vertical>
 		<RouterLink v-for="(router) in routers" :to="router.to" :title="router.title" :key="router.to"
-			class="router-item" @click="() => startLoadingBar(router.to)">
+			class="router-item">
 			<div
 				style="display: flex; align-items: center; justify-content: center; grid-column: 1 / 2; grid-row: 1 / 2">
 				<Icon :size="24">

@@ -7,7 +7,11 @@ import { onMounted, watch, computed, ref } from "vue";
 
 const themeVars = useThemeVars();
 const backgroundColour = computed(() => themeVars.value.bodyColor);
+watch(backgroundColour, () => {
+	document.body.style.backgroundColor = backgroundColour.value;
+});
 document.body.style.backgroundColor = backgroundColour.value;
+
 
 onMounted(async () => {
 	const sessionCredentialStore = await useSessionCredentialStore();
@@ -33,9 +37,9 @@ watch(router.currentRoute, () => {
 </script>
 
 <template>
-	<div class="app" :style="{ backgroundColor: backgroundColour }">
+	<div class="app">
 		<RouterBar class="router-bar" />
-		<div class="router-view" :style="{left: routerViewLeft, backgroundColor: backgroundColour}">
+		<div class="router-view" :style="{left: routerViewLeft}">
 			<RouterView style="height: 100%; width: 100%;" v-slot="{ Component }">
 				<Suspense>
 					<component :is="Component" />
@@ -45,7 +49,7 @@ watch(router.currentRoute, () => {
 	</div>
 </template>
 
-<style>
+<style scoped>
 .app {
 	--margin: 8px;
 	width: 100%;
