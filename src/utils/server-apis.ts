@@ -337,3 +337,17 @@ export const updateStudentsOfAnEvent = async (eventID: string, studentIDs: strin
 	});
 };
 
+export const calculateVolunteerHours = async (ids: string[], sessionSocket: Awaited<ReturnType<typeof useSessionSocket>>, sessionCredential: Awaited<ReturnType<typeof useSessionCredentialStore>>) => {
+	return new Promise<Record<string, number>>(async (resolve, reject) => {
+		sessionSocket.postAES<{ hours: Record<string, number> }>("/calculate-volunteer-hours", {
+			token: sessionCredential.token,
+			ids: ids,
+		})
+			.then((data) => {
+				resolve(data.hours);
+			})
+			.catch((error) => {
+				reject(String(error).includes("API") ? "Fail to calculate volunteer hours: " + error : "Unknown error: " + error.split(":").pop());
+			});
+		});
+};

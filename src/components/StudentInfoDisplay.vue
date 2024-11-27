@@ -2,7 +2,7 @@
 import { ref, watch } from 'vue';
 import { NThing, NDataTable, useMessage, NH4 } from 'naive-ui';
 import type { RecruitmentDataType, StudentType } from '@/utils/server-apis';
-import { getRecruitmentIDsByVolunteerIDs, getRecruitmentsByIDs } from '@/utils/server-apis';
+import { getRecruitmentIDsByVolunteerIDs, getRecruitmentsByIDs, calculateVolunteerHours } from '@/utils/server-apis';
 import { useSessionSocket } from '@/stores/session-socket';
 import { useSessionCredentialStore } from '@/stores/session-credential';
 
@@ -16,9 +16,14 @@ const columns = [
 		title: "Recruitment Name",
 		key: "eventName",
 	},
+	{
+		title: "Volunteer Hours",
+		key: "volunteerHours",
+	},
 ];
 
 const recruitments = ref<RecruitmentDataType[]>([]);
+const volunteerHours = ref(-1);
 const loading = ref(false);
 
 const props = defineProps<{
@@ -38,6 +43,7 @@ const updateRecruitments = async () => {
 		const socket = await useSessionSocket();
 		const credential = await useSessionCredentialStore();
 		const recruitmentIDs = (await getRecruitmentIDsByVolunteerIDs([id], socket, credential)).find(x => x[0] === id)![1];
+		volunteerHours.value = (await calculateVolunteerHours([id], socket, credential))[id];
 		recruitments.value = (await getRecruitmentsByIDs(recruitmentIDs, socket, credential));
 	}
 	catch (e) {
@@ -60,7 +66,7 @@ updateRecruitments();
 	<div class="outer-container-student">
 		<n-thing class="description">
 			<template #header>{{ props.student.name }}</template>
-
+			<template #header-extra>Volunteer Hours: <pre style="display: inline">{{ volunteerHours > -1 ? volunteerHours : 'N/A' }}</pre> </template>
 			<template #description>
 				<label>
 					ID:
