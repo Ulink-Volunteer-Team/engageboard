@@ -58,48 +58,49 @@ updateParticipants();
 
 <template>
 	<div class="outer-container">
-		<n-tabs type="segment" animated class="tab" default-value="info" pane-style="overflow: auto; height: 100%;" style="height: 100%;" pane-wrapper-style="height: 100%;">
+		<n-tabs type="segment" animated class="tab" default-value="info" pane-style="height: 100%;"
+			style="height: 100%;" pane-wrapper-style="height: 100%;">
 			<n-tab-pane name="info" tab="Info">
-				<n-thing>
-					<template #header>{{ props.recruitment.eventName }}</template>
-					<template #header-extra>
-						<pre>{{ new Date(props.recruitment.eventTime).toLocaleString() }}</pre>
-					</template>
+				<div class="info-container">
+					<n-thing style="grid-area: 1 / 1 / 2 / 2;">
+						<template #header>{{ props.recruitment.eventName }}</template>
+						<template #header-extra>
+							<pre>{{ new Date(props.recruitment.eventTime).toLocaleString() }}</pre>
+						</template>
 
-					<n-table>
-						<n-thead>
-							<n-tr>
-								<n-td>Department</n-td>
-								<n-td>Form Filled By</n-td>
-								<n-td>Volunteer Hours</n-td>
-							</n-tr>
-						</n-thead>
-						<n-tbody>
-							<n-tr>
-								<n-td>{{ props.recruitment.department }} 1</n-td>
-								<n-td>{{ props.recruitment.formFilledBy }}</n-td>
-								<n-td>
-									<pre>{{ props.recruitment.volunteerHours }}</pre>
-								</n-td>
-							</n-tr>
-						</n-tbody>
-					</n-table>
+						<n-table>
+							<n-thead>
+								<n-tr>
+									<n-td>Department</n-td>
+									<n-td>Form Filled By</n-td>
+									<n-td>Volunteer Hours</n-td>
+								</n-tr>
+							</n-thead>
+							<n-tbody>
+								<n-tr>
+									<n-td>{{ props.recruitment.department }} 1</n-td>
+									<n-td>{{ props.recruitment.formFilledBy }}</n-td>
+									<n-td>
+										<pre>{{ props.recruitment.volunteerHours }}</pre>
+									</n-td>
+								</n-tr>
+							</n-tbody>
+						</n-table>
 
-					<template #description><label>ID:
-							<pre style="display: inline; user-select: text; cursor: text; padding: 8px;">{{ props.recruitment.id }}</pre>
-						</label></template>
-					<template #footer>
-						<div style="height: 100%; width: 100%; overflow: auto; max-height: 12em;">
-							{{ props.recruitment.additionalNotes }}
-						</div>
-					</template>
-				</n-thing>
+						<template #description><label>ID:
+								<pre class="selective-text">{{ props.recruitment.id }}</pre>
+							</label></template>
+					</n-thing>
+					<div class="description selective-text">
+						{{ props.recruitment.additionalNotes }}
+					</div>
+				</div>
 			</n-tab-pane>
 			<n-tab-pane name="participants" tab="Participants">
 				<div style="height: 100%;">
 
-				<n-data-table :columns="columns" :data="participants" style="height: 100%; min-height: 12em;" flex-height :row-key="row => row.id"
-					:loading="loading" />
+					<n-data-table :columns="columns" :data="participants" style="height: 100%; min-height: 12em;"
+						flex-height :row-key="row => row.id" :loading="loading" />
 				</div>
 			</n-tab-pane>
 		</n-tabs>
@@ -108,6 +109,8 @@ updateParticipants();
 
 <style scoped>
 .outer-container {
+	position: relative;
+
 	height: 100%;
 	width: 100%;
 
@@ -117,5 +120,28 @@ updateParticipants();
 .tab {
 	height: 100%;
 	width: 100%;
+}
+
+.info-container {
+	height: calc(100% - 1em);
+	width: 100%;
+	overflow: auto;
+
+	display: grid;
+	grid-template-rows: auto auto;
+
+	position: absolute;
+}
+
+.description {
+	height: 100%;
+	width: 100%;
+	overflow: auto;
+	min-height: 4em;
+
+
+
+	margin-top: 8px;
+	grid-area: 2 / 1 / 3 / 2;
 }
 </style>

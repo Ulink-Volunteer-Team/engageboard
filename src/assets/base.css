@@ -5,3 +5,10 @@
   margin: 0;
   font-weight: normal;
 }
+
+.selective-text {
+	display: inline;
+	user-select: text;
+	cursor: text;
+	padding: 8px;
+}

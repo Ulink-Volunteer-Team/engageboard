@@ -114,7 +114,7 @@ onMounted(() => {
 	height: 100%;
 
 	display: grid;
-	place-items: center;
+
 	align-items: center;
 	animation: fade-in 0.3s ease-in;
 }

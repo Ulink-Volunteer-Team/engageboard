@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import RecruitmentEdit from './RecruitmentEdit.vue';
-import { NModal, NButton } from 'naive-ui';
+import { NModal, NButton, NSpin } from 'naive-ui';
 import { getRecruitmentByID, getVolunteersIDsByRecruitmentIDs, updateRecruitments, updateStudentsOfAnEvent } from '@/utils/server-apis';
 import { watch, ref } from 'vue';
 import { useSessionSocket } from '@/stores/session-socket';
@@ -16,6 +16,7 @@ const visible = defineModel<boolean>("visible");
 const emit = defineEmits(['confirmed']);
 
 const message = useMessage();
+const showSpin = ref(false);
 
 const participantsRef = ref<string[]>([]);
 const recruitmentRef = ref<RecruitmentDataType>();
@@ -25,6 +26,7 @@ watch(props, async () => {
 
 	const sessionSocket = await useSessionSocket();
 	const sessionCredential = await useSessionCredentialStore();
+	showSpin.value = true;
 	getRecruitmentByID(props.recruitmentID, sessionSocket, sessionCredential)
 		.then((recruitment) => {
 			if (!recruitment) {
@@ -41,6 +43,9 @@ watch(props, async () => {
 					.catch((error) => {
 						message.error("Fail to load volunteer data");
 						console.error(error);
+					})
+					.finally(() => {
+						showSpin.value = false;
 					});
 			}
 		})
@@ -71,7 +76,9 @@ const handleConfirm = async () => {
 <template>
 	<n-modal v-model:show="visible" preset="card" title="Edit Recruitment" class="model" content-style="width: 100%;"
 		style="width: 60em">
-		<recruitment-edit v-model:recruitment="recruitmentRef" v-model:participants="participantsRef" />
+		<n-spin :show="showSpin">
+			<recruitment-edit v-model:recruitment="recruitmentRef" v-model:participants="participantsRef" />
+		</n-spin>
 		<template #action>
 			<n-button type="primary" @click="handleConfirm">Save</n-button>
 		</template>

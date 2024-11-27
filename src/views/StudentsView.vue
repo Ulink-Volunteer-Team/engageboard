@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, watch, type Component, onMounted, computed } from "vue";
+import { ref, watch, type Component, type Ref, onMounted, computed } from "vue";
 import { useMessage, NEmpty, NInput, NDataTable, type DataTableColumns, NTooltip, NSwitch, NSplit, NCard, NFlex, NButton, NIcon, useDialog, useLoadingBar } from 'naive-ui';
-import { DeleteOutlineRound, PersonAddAlt1Round, SearchRound } from "@vicons/material";
+import { DeleteOutlineRound, PersonAddAlt1Round, SearchRound, EditNoteRound } from "@vicons/material";
 import { useSessionSocket } from '@/stores/session-socket';
 import { useSessionCredentialStore } from '@/stores/session-credential';
 import router from '@/router';
@@ -9,6 +9,7 @@ import { type StudentType, getStudentsByFuzzySearch, removeStudent, addStudents,
 import StudentInfoInput from "@/components/StudentInfoInput.vue";
 import StudentInfoDisplay from "@/components/StudentInfoDisplay.vue";
 import SinglePrompt from "@/components/SinglePrompt.vue";
+import StudentEditDialog from "@/components/StudentEditDialog.vue";
 import { useRouterStore } from '@/stores/router-store';
 
 const message = useMessage();
@@ -62,6 +63,8 @@ const studentIDSearchDialogVisible = ref(false);
 const openIDSearchDialog = () => studentIDSearchDialogVisible.value = true;
 const closeIDSearchDialog = () => studentIDSearchDialogVisible.value = false;
 
+const studentEditDialogVisible = ref(false);
+
 const addStudentsLocal = (newStudentInfo: StudentType) => {
 	if (!newStudentInfo.id || !newStudentInfo.name) {
 		message.error("Invalid student info");
@@ -84,7 +87,6 @@ const getStudentByIDLocal = (studentID: string) => {
 	}
 	getStudentByID(studentID, sessionSocket, sessionCredential)
 		.then(({ name }) => {
-			console.log(name);
 			if (!name) {
 				message.error(`No such student with ID: "${studentID}"`);
 				return;
@@ -128,7 +130,8 @@ const columns = computed<DataTableColumns<StudentType>>(() => [
 	},
 ]);
 
-const toolBarItems: Array<{ title: string, icon: Component, onClick: () => void, critical: boolean }> = [
+const notAvailableLabel = (label: string, source: Ref<boolean>, not: boolean = false) => computed(() => (not ? !source.value : source.value) ? `${label} (Not Available in Multiple Selection)` : label);
+const toolBarItems: Array<{ title: string, icon: Component, onClick: () => void, critical: boolean, disabled?: boolean }> = [
 	{
 		title: "Delete",
 		icon: DeleteOutlineRound,
@@ -161,6 +164,19 @@ const toolBarItems: Array<{ title: string, icon: Component, onClick: () => void,
 		icon: SearchRound,
 		onClick: openIDSearchDialog,
 		critical: false,
+	},
+	{
+		title: notAvailableLabel("Edit", tableMultipleSelection).value,
+		icon: EditNoteRound,
+		onClick: () => {
+			if (selectedIds.value.length !== 1) {
+				message.error("Please select one student only");
+				return;
+			}
+			studentEditDialogVisible.value = true;
+		},
+		critical: false,
+		disabled: tableMultipleSelection.value,
 	},
 ];
 
@@ -216,7 +232,7 @@ onMounted(() => {
 						</n-flex>
 					</n-card>
 					<n-card style="height: 100%; width: 100; min-width: 0; min-height: 0;" size="small">
-						<div v-if="selectedIds.length === 0" style="display: grid; place-items: center; height: 100%;">
+						<div v-if="selectedIds.length === 0" style="display: grid; height: 100%;">
 							<n-empty description="Please select a student" />
 						</div>
 						<!-- Selected Student -->
@@ -233,6 +249,7 @@ onMounted(() => {
 		<student-info-input v-model:visible="newStudentDialogVisible" @confirm="addStudentsLocal" />
 		<single-prompt v-model:visible="studentIDSearchDialogVisible" title="Search by ID"
 			prompt="Please input the student ID" @confirmed="getStudentByIDLocal" />
+		<student-edit-dialog v-model:visible="studentEditDialogVisible" :studentId="selectedIds[0]" @confirmed="updateSearchResult" />
 	</div>
 </template>
 

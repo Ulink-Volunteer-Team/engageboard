@@ -39,7 +39,7 @@ watch(router.currentRoute, () => {
 <template>
 	<div class="app">
 		<RouterBar class="router-bar" />
-		<div class="router-view" :style="{left: routerViewLeft}">
+		<div class="router-view" :style="{left: routerViewLeft, background: backgroundColour}">
 			<RouterView style="height: 100%; width: 100%;" v-slot="{ Component }">
 				<Suspense>
 					<component :is="Component" />

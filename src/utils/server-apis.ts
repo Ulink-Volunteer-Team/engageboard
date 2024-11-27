@@ -66,6 +66,19 @@ export const addStudents = async (students: StudentType[], sessionSocket: Awaite
 	});
 };
 
+export const updateStudents = async (students: StudentType[], sessionSocket: Awaited<ReturnType<typeof useSessionSocket>>, sessionCredential: Awaited<ReturnType<typeof useSessionCredentialStore>>) => {
+	return new Promise<void>(async (resolve, reject) => {
+		sessionSocket.postAES<{ success: boolean }>("/update-students", {
+			token: sessionCredential.token,
+			students: students,
+		}).then(() => {
+			resolve();
+		}).catch((error) => {
+			reject(String(error).includes("API") ? "Fail to update student: " + error : "Unknown error: " + error.split(":").pop());
+		});
+	});
+};
+
 export const removeStudent = async (ids: string[], sessionSocket: Awaited<ReturnType<typeof useSessionSocket>>, sessionCredential: Awaited<ReturnType<typeof useSessionCredentialStore>>) => {
 	return new Promise<void>(async (resolve, reject) => {
 		sessionSocket.postAES<{ success: boolean }>("/remove-students", {
@@ -292,9 +305,9 @@ export const addEventRecords = async (eventRecords: EventRecordType[], sessionSo
 	});
 };
 
-export const updateRecordsOfAStudent = async (studentID: string, eventIDs: EventRecordType[], sessionSocket: Awaited<ReturnType<typeof useSessionSocket>>, sessionCredential: Awaited<ReturnType<typeof useSessionCredentialStore>>) => {
+export const updateRecordsOfAStudent = async (studentID: string, eventIDs: string[], sessionSocket: Awaited<ReturnType<typeof useSessionSocket>>, sessionCredential: Awaited<ReturnType<typeof useSessionCredentialStore>>) => {
 	return new Promise<void>(async (resolve, reject) => {
-		sessionSocket.postAES<{ success: boolean }>("/update-records-of-a-student", {
+		sessionSocket.postAES<{ success: boolean }>("/update-events-of-a-student", {
 			token: sessionCredential.token,
 			studentID,
         	eventIDs,

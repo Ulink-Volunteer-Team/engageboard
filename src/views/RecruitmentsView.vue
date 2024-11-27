@@ -286,7 +286,7 @@ onMounted(() => {
 					<template #2>
 						<n-card size="small" class="search-result" content-style="min-width: 0; min-height:0;">
 							<div v-if="selectedRecruitments.length === 0 || searchFilter.length === 0"
-								style="display: grid; place-items: center; height: 100%; width: 100%;">
+								style="display: grid; height: 100%; width: 100%;">
 								<n-empty description="Please Select a Recruitment or Input Search Filter" />
 							</div>
 							<div style="height: 100%; width: 100; overflow-x: scroll;" v-else>
