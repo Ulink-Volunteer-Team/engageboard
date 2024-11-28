@@ -21,11 +21,12 @@ export type RecruitmentDataType = {
     additionalNotes: string;
 }
 
-export const login = async (id: string, password: string, sessionSocket: Awaited<ReturnType<typeof useSessionSocket>>, sessionCredential: Awaited<ReturnType<typeof useSessionCredentialStore>>) => {
+export const login = async (id: string, password: string, turnstile_key : string, sessionSocket: Awaited<ReturnType<typeof useSessionSocket>>, sessionCredential: Awaited<ReturnType<typeof useSessionCredentialStore>>) => {
 	return new Promise<void>(async (resolve, reject) => {
 		sessionSocket.postAES<{ token: string }>("/sign-in", {
 			id: id,
 			password: password,
+			cf_turnstile_token: turnstile_key
 		})
 			.then((data) => {
 				sessionCredential.token = data.token;
