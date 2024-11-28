@@ -1,0 +1,42 @@
+name: Deploy to Server
+
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: deploy-to-server
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run release
+        env: 
+          HTTP_COMPATIBLE: ${{ vars.HTTP_COMPATIBLE }}
+          SERVER_HOST: ${{ vars.SERVER_HOST }}
+
+      # fail on updating time or setting the permission, but not affect the deployment
+      - name: Rsync Products
+        uses: up9cloud/action-rsync@master
+        env:
+          HOST: ${{ secrets.SYNC_HOST_NAME }}
+          USER: ${{ secrets.SYNC_USER_NAME }}
+          PORT: ${{ secrets.SYNC_PORT }}
+          PASSWORD: ${{ secrets.SYNC_USER_PASSWORD }}
+          SOURCE: "dist/"
+          TARGET: ${{ secrets.SYNC_PATH }}
+          ARGS: -avzr --delete --omit-dir-times --no-perms
