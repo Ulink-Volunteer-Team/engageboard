@@ -5,9 +5,12 @@ import { useSessionSocket } from "@/stores/session-socket";
 import { useSessionCredentialStore, clearSessionCredential } from "@/stores/session-credential";
 import { login, getTokenState } from "@/utils/server-apis";
 import { useRouterStore } from "@/stores/router-store";
+import VueTurnstile from 'vue-turnstile';
 import router from "@/router";
 
 const message = useMessage();
+
+const turnstile_key = "";
 
 const userCredential = ref({
 	userName: "",
@@ -55,7 +58,7 @@ if (!sessionCredential.logged) {
 }
 
 function localLogin() {
-	login(userCredential.value.userName, userCredential.value.password, sessionSocket, sessionCredential)
+	login(userCredential.value.userName, userCredential.value.password, turnstile_key, sessionSocket, sessionCredential)
 		.then(() => {
 			setTimeout(() => message.info("Login successful. Hi, " + userCredential.value.userName), 0);
 			afterLogin();
@@ -85,6 +88,11 @@ onMounted(() => {
 						v-model:value="userCredential.password" />
 				</n-form-item>
 				<n-form-item path="submit">
+					<template>
+						<div>
+							<vue-turnstile site-key=__TURNSTILE_KEY__ v-model="turnstile_key" @error="message.error('Turnstile check failed')" @unsupported="message.error('Please switch a browser.')" />
+						</div>
+					</template>
 					<n-button @click="localLogin" class="login-button" type="primary">
 						Login
 					</n-button>
@@ -100,7 +108,7 @@ onMounted(() => {
 		opacity: 0;
 	}
 
-	30% {
+	30% { 	
 		opacity: 0;
 	}
 
