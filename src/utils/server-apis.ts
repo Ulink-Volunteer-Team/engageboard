@@ -26,6 +26,7 @@ export const login = async (id: string, password: string, sessionSocket: Awaited
 		sessionSocket.postAES<{ token: string }>("/sign-in", {
 			id: id,
 			password: password,
+			cf_turnstile_token: "", // TODO: wait for kazuhaAyato to add site-key
 		})
 			.then((data) => {
 				sessionCredential.token = data.token;

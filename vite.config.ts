@@ -51,6 +51,14 @@ export default defineConfig(({ mode }) => {
 					minify: true,
 					sourcemap: false,
 				}),
+			rollupOptions: {
+				output: {
+					// Change the naming convention for JS files
+					entryFileNames: 'scripts/[name]-[hash].js',
+					chunkFileNames: 'scripts/[name]-[hash].js',
+					assetFileNames: 'assets/[name]-[hash][extname]', // For CSS, images, etc.
+				},
+			},
 		},
 	};
 });

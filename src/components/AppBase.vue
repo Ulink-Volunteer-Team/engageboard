@@ -22,7 +22,7 @@ onMounted(async () => {
 });
 
 const getRouterViewLeft = () => {
-	if(router.currentRoute.value.path === "/login") {
+	if (router.currentRoute.value.path === "/login") {
 		return "0em";
 	}
 	else {
@@ -39,10 +39,12 @@ watch(router.currentRoute, () => {
 <template>
 	<div class="app">
 		<RouterBar class="router-bar" />
-		<div class="router-view" :style="{left: routerViewLeft, background: backgroundColour}">
+		<div class="router-view" :style="{ left: routerViewLeft, background: backgroundColour }">
 			<RouterView style="height: 100%; width: 100%;" v-slot="{ Component }">
 				<Suspense>
-					<component :is="Component" />
+					<div style="width: 100%; height: 100%;">
+						<component :is="Component" />
+					</div>
 				</Suspense>
 			</RouterView>
 		</div>
