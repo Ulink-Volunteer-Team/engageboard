@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NCard, NForm, NFormItem, NInput, NButton, useMessage, useLoadingBar } from "naive-ui";
+import { NCard, NForm, NFormItem, NInput, NButton, NFlex, useMessage, useLoadingBar } from "naive-ui";
 import { ref, onMounted } from "vue";
 import { useSessionSocket } from "@/stores/session-socket";
 import { useSessionCredentialStore, clearSessionCredential } from "@/stores/session-credential";
@@ -32,8 +32,10 @@ const afterLogin = () => {
 	redirect();
 };
 
+const turnstileKey = ref(__TURNSTILE_KEY__);
+
 if (!sessionCredential.logged) {
-	if(sessionCredential.userID && sessionCredential.token) {
+	if (sessionCredential.userID && sessionCredential.token) {
 		getTokenState(sessionSocket, sessionCredential)
 			.then((data) => {
 				if (data.valid) {
@@ -49,7 +51,7 @@ if (!sessionCredential.logged) {
 				message.error("Fail to get token state: " + String(error));
 			});
 	}
-	else if(routerStore.redirect) {
+	else if (routerStore.redirect) {
 		message.warning("Please log in first.");
 	}
 } else {
@@ -88,14 +90,17 @@ onMounted(() => {
 						v-model:value="userCredential.password" />
 				</n-form-item>
 				<n-form-item path="submit">
-					<template>
-						<div>
-							<vue-turnstile site-key=__TURNSTILE_KEY__ v-model="turnstile_key" @error="message.error('Turnstile check failed')" @unsupported="message.error('Please switch a browser.')" />
+					<n-flex :wrap="false" style="width: 100%;" vertical :size="16">
+						<n-button @click="localLogin" class="login-button" type="primary">
+							Login
+						</n-button>
+						<div class="turnstile">
+						<vue-turnstile :site-key="turnstileKey" v-model="turnstile_key"
+							@error="message.error('Turnstile check failed')"
+							@unsupported="message.error('Please switch a browser.')" />
 						</div>
-					</template>
-					<n-button @click="localLogin" class="login-button" type="primary">
-						Login
-					</n-button>
+
+					</n-flex>
 				</n-form-item>
 			</n-form>
 		</NCard>
@@ -108,7 +113,7 @@ onMounted(() => {
 		opacity: 0;
 	}
 
-	30% { 	
+	30% {
 		opacity: 0;
 	}
 
@@ -122,16 +127,23 @@ onMounted(() => {
 	height: 100%;
 
 	display: grid;
-    place-content: center;
+	place-content: center;
 	animation: fade-in 0.3s ease-in;
 }
 
 .login-card {
-	width: min(20em, 100%);
-	height: min(30em, 100%);
+	width: min(50em, 100%);
+	height: min(60em, 100%);
 }
 
 .login-button {
 	width: 100%;
+}
+
+.turnstile {
+	width: 300px;
+	height: 4.5em;
+	background-color: rgba(128, 128, 128, 0.5);
+	content: "Turnstile";
 }
 </style>

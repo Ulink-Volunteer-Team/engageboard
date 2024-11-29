@@ -29,7 +29,7 @@ export default defineConfig(({ mode }) => {
 		mode,
 		define: {
 			__HOST_URL__: host,
-			__TURNSTILE_KEY__: cf_tk
+			__TURNSTILE_KEY__: JSON.stringify(cf_tk),
 		},
 		plugins: [
 			vue(),
