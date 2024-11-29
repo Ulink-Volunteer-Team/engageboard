@@ -26,6 +26,7 @@ jobs:
       - name: Build
         run: npm run release
         env: 
+          CF_CLIENT_KEY: ${{ secrets.CF_CLIENT_KEY }}
           HTTP_COMPATIBLE: ${{ vars.HTTP_COMPATIBLE }}
           SERVER_HOST: ${{ vars.SERVER_HOST }}
 
