@@ -90,8 +90,7 @@ onMounted(() => {
 				<n-form-item path="submit">
 					<template>
 						<div>
-							<vue-turnstile site-key="0x4AAAAAAA0mx9IVDLp_4_4o" v-model="turnstile_key" />
-							<div>Token: {{ "0x4AAAAAAA0mx9IVDLp_4_4o" }}</div>
+							<vue-turnstile site-key=__TURNSTILE_KEY__ v-model="turnstile_key" @error="message.error('Turnstile check failed')" @unsupported="message.error('Please switch a browser.')" />
 						</div>
 					</template>
 					<n-button @click="localLogin" class="login-button" type="primary">

@@ -11,6 +11,7 @@ dotenv.config();
 
 const debugHost = "http://localhost:3000";
 const releaseHost = process.env.SERVER_HOST;
+const cf_tk = process.env.CF_CLIENT_KEY;
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
@@ -28,6 +29,7 @@ export default defineConfig(({ mode }) => {
 		mode,
 		define: {
 			__HOST_URL__: host,
+			__TURNSTILE_KEY__: cf_tk
 		},
 		plugins: [
 			vue(),
