@@ -10,7 +10,7 @@ import router from "@/router";
 
 const message = useMessage();
 
-const turnstile_key = "";
+const turnstile_key = ref("");
 
 const userCredential = ref({
 	userName: "",
@@ -60,7 +60,7 @@ if (!sessionCredential.logged) {
 }
 
 function localLogin() {
-	login(userCredential.value.userName, userCredential.value.password, turnstile_key, sessionSocket, sessionCredential)
+	login(userCredential.value.userName, userCredential.value.password, turnstile_key.value, sessionSocket, sessionCredential)
 		.then(() => {
 			setTimeout(() => message.info("Login successful. Hi, " + userCredential.value.userName), 0);
 			afterLogin();
