@@ -26,7 +26,7 @@ export const login = async (id: string, password: string, turnstile_key : string
 		sessionSocket.postAES<{ token: string }>("/sign-in", {
 			id: id,
 			password: password,
-			cf_turnstile_token: turnstile_key
+			cf_turnstile_token: turnstile_key,
 		})
 			.then((data) => {
 				sessionCredential.token = data.token;
@@ -34,7 +34,7 @@ export const login = async (id: string, password: string, turnstile_key : string
 				resolve();
 			})
 			.catch((error) => {
-				reject(String(error).includes("API") ? "Incorrect user name or password" : "Unknown error: " + error.split(":").pop());
+				reject(String(error).includes("password") ? "Incorrect user name or password" : "Error: " + error);
 			});
 	});
 };

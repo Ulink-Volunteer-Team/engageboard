@@ -1,7 +1,8 @@
 import axios, { type AxiosInstance } from 'axios';
 import { encryptAes256, decryptAes256 } from 'my-crypto';
+import { UsingHTTPS, OnLocalHost } from './utils';
 
-export const usingSecureConnection = location.protocol.split(":").shift() === "https" || location.href.split(":")[1].slice(2) === "localhost";
+export const usingSecureConnection = UsingHTTPS() || OnLocalHost();
 
 export function post<T = unknown>(route: string, data: unknown, axiosInstance?: AxiosInstance) {
 	if (!axiosInstance) axiosInstance = axios.create();

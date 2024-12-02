@@ -1,38 +1,39 @@
 <script setup lang="ts">
 import { NModal, NInput, NFlex, NButton, NDatePicker, NInputNumber, NForm, NFormItem } from 'naive-ui';
 import { type RecruitmentDataType } from '@/utils/server-apis';
-import { ref } from "vue";
+import { reactive } from "vue";
 
 const emit = defineEmits(["confirm"]);
 
 const visible = defineModel<boolean>("visible");
 
-const getInitialData = () => ref(JSON.parse(JSON.stringify({
-	department: '',
-	formFilledBy: '',
-	eventName: '',
-	eventTime: Date.now(),
-	volunteerHours: 0,
-	additionalNotes: '',
-})) as RecruitmentDataType);
-
-const recruitment = defineModel<RecruitmentDataType>("recruitment", {default: ref({
-	department: '',
-	formFilledBy: '',
-	eventName: '',
-	eventTime: Date.now(),
-	volunteerHours: 0,
-	additionalNotes: '',
-})});
+const recruitment = defineModel<RecruitmentDataType>("recruitment", {
+	default: reactive({
+		department: '',
+		formFilledBy: '',
+		eventName: '',
+		eventTime: Date.now(),
+		volunteerHours: 0,
+		additionalNotes: '',
+	}),
+});
 
 const handleConfirm = () => {
 	emit('confirm', recruitment.value);
-	recruitment.value = getInitialData();
+};
+
+const clearForm = () => {
+	recruitment.value.department = '';
+	recruitment.value.formFilledBy = '';
+	recruitment.value.eventName = '';
+	recruitment.value.eventTime = Date.now();
+	recruitment.value.volunteerHours = 0;
+	recruitment.value.additionalNotes = '';
 };
 </script>
 
 <template>
-	<n-modal v-model:show="visible" preset="dialog" title="Add new recruitment" style="width: 28em;">
+	<n-modal v-model:show="visible" preset="dialog" title="Add new recruitment" style="width: 28em;" @after-hide="clearForm">
 		<n-form label-placement="top">
 			<n-flex :wrap="false" style="width: 100%;">
 				<n-form-item label="Department" path="department">
@@ -54,7 +55,7 @@ const handleConfirm = () => {
 				</n-form-item>
 			</n-flex>
 			<n-form-item label="Additional Notes" path="additionalNotes">
-				<n-input v-model:value="recruitment.additionalNotes" placeholder="Additional Notes" type="textarea"/>
+				<n-input v-model:value="recruitment.additionalNotes" placeholder="Additional Notes" type="textarea" />
 			</n-form-item>
 		</n-form>
 		<template #action>

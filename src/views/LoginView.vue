@@ -7,6 +7,7 @@ import { login, getTokenState } from "@/utils/server-apis";
 import { useRouterStore } from "@/stores/router-store";
 import VueTurnstile from 'vue-turnstile';
 import router from "@/router";
+import { OnLocalHost } from "@/utils/utils";
 
 const message = useMessage();
 
@@ -32,7 +33,8 @@ const afterLogin = () => {
 	redirect();
 };
 
-const turnstileKey = ref(__TURNSTILE_KEY__);
+const turnstileSiteKey = ref(__TURNSTILE_KEY__);
+const turnstileRequired = !OnLocalHost();
 
 if (!sessionCredential.logged) {
 	if (sessionCredential.userID && sessionCredential.token) {
@@ -94,8 +96,8 @@ onMounted(() => {
 						<n-button @click="localLogin" class="login-button" type="primary">
 							Login
 						</n-button>
-						<div class="turnstile">
-						<vue-turnstile :site-key="turnstileKey" v-model="turnstile_key"
+						<div class="turnstile" v-if="turnstileRequired">
+						<vue-turnstile :site-key="turnstileSiteKey" v-model="turnstile_key"
 							@error="message.error('Turnstile check failed')"
 							@unsupported="message.error('Please switch a browser.')" />
 						</div>
