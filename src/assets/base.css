@@ -12,3 +12,11 @@
 	cursor: text;
 	padding: 8px;
 }
+
+.centre-grid-box {
+	height: 100%;
+	width: 100%;
+
+	display: grid;
+	place-items: center;
+}

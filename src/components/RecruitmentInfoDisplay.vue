@@ -11,6 +11,10 @@ const columns = [
 	{
 		title: "Student ID",
 		key: "id",
+		width: 120,
+		ellipsis: {
+			tooltip: true,
+		},
 	},
 	{
 		title: "Student Name",
@@ -98,7 +102,6 @@ updateParticipants();
 			</n-tab-pane>
 			<n-tab-pane name="participants" tab="Participants">
 				<div style="height: 100%;">
-
 					<n-data-table :columns="columns" :data="participants" style="height: 100%; min-height: 12em;"
 						flex-height :row-key="row => row.id" :loading="loading" />
 				</div>

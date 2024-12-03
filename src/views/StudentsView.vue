@@ -120,6 +120,10 @@ const columns = computed<DataTableColumns<StudentType>>(() => [
 		maxWidth: 200,
 		minWidth: 100,
 		fixed: 'left',
+		width: 120,
+		ellipsis: {
+			tooltip: true,
+		},
 	},
 	{
 		title: 'Name',
@@ -193,7 +197,11 @@ onMounted(() => {
 		<n-split direction="horizontal" style="height: 100%; width: 100%; overflow: visible;">
 			<template #1>
 				<n-data-table v-model:checked-row-keys="selectedIds" :columns="columns" :data="searchResult"
-					class="search-result" :row-key="row => row.id" :loading="loading" virtual-scroll flex-height />
+					class="search-result" :row-key="row => row.id" :loading="loading" virtual-scroll flex-height >
+					<template #empty>
+						<n-empty :description='searchName ? "No Results Found" : "Please Input the Search Value"' style="max-width: 16em; text-align: center;" />
+					</template>
+				</n-data-table>
 			</template>
 
 			<template #resize-trigger>
@@ -232,7 +240,7 @@ onMounted(() => {
 						</n-flex>
 					</n-card>
 					<n-card style="height: 100%; width: 100; min-width: 0; min-height: 0;" size="small">
-						<div v-if="selectedIds.length === 0" style="display: grid; height: 100%;">
+						<div v-if="selectedIds.length === 0" class="centre-grid-box">
 							<n-empty description="Please select a student" />
 						</div>
 						<!-- Selected Student -->

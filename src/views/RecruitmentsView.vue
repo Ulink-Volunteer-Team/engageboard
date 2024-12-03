@@ -145,6 +145,10 @@ const columns = computed(() => [
 		maxWidth: 200,
 		minWidth: 100,
 		fixed: 'left',
+		width: 120,
+		ellipsis: {
+			tooltip: true,
+		},
 	},
 	{
 		title: 'Event Name',
@@ -285,9 +289,8 @@ onMounted(() => {
 					<!-- Recruitment Details -->
 					<template #2>
 						<n-card size="small" class="search-result" content-style="min-width: 0; min-height:0;">
-							<div v-if="selectedRecruitments.length === 0 || searchFilter.length === 0"
-								style="display: grid; height: 100%; width: 100%;">
-								<n-empty description="Please Select a Recruitment or Input Search Filter" />
+							<div v-if="selectedRecruitments.length === 0 || searchFilter.length === 0" class="centre-grid-box">
+								<n-empty description="Please Select a Recruitment" />
 							</div>
 							<div style="height: 100%; width: 100; overflow-x: scroll;" v-else>
 								<recruitment-info-display :recruitment="selectedRecruitments[0]" />
@@ -301,7 +304,11 @@ onMounted(() => {
 				<!-- Search Result -->
 				<n-data-table v-model:checked-row-keys="selectedIds" :columns="(columns as DataTableColumns)"
 					:data="searchResult" :row-key="row => row.id" :loading="loading" virtual-scroll flex-height
-					class="search-result" />
+					class="search-result" >
+					<template #empty>
+						<n-empty :description='searchFilter.length > 0 ? "No Results Found" : "Please Input Search Filter"' style="max-width: 16em; text-align: center;" />
+					</template>
+				</n-data-table>
 			</template>
 
 			<template #resize-trigger>

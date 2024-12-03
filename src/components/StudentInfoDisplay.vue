@@ -11,6 +11,10 @@ const columns = [
 	{
 		title: "Recruitment ID",
 		key: "id",
+		width: 120,
+		ellipsis: {
+			tooltip: true,
+		},
 	},
 	{
 		title: "Recruitment Name",
