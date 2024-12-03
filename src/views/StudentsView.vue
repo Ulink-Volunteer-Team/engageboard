@@ -207,7 +207,7 @@ onMounted(() => {
 
 					<!-- Tool Bar -->
 					<n-card content-style="padding: 8px;" class="tool-bar">
-						<n-flex justify="left" :align="'center'" style="height: 2em;">
+						<n-flex justify="left" :align="'center'" style="height: 2em;" :wrap="false">
 							<!-- Tool Bar Items -->
 							<n-tooltip v-for="item in toolBarItems" :key="item.title" trigger="hover"
 								placement="bottom">
@@ -285,6 +285,8 @@ onMounted(() => {
 	grid-column: 1 / 2;
 	grid-row: 2 / 3;
 	width: 100%;
+
+	overflow-x: auto;
 }
 
 .search-result {

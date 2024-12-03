@@ -15,6 +15,10 @@ type RouterItemType = {
 
 const loadingBar = useLoadingBar();
 
+const inSamePage = (to: string) => {
+	return to.split("/").pop() === router.currentRoute.value.path.split("/").pop();
+};
+
 const routers: RouterItemType[] = [
 	{
 		icon: DashboardRound,
@@ -39,7 +43,7 @@ const routers: RouterItemType[] = [
 ];
 
 router.beforeEach((to, from) => {
-	if(from.path === to.path) {
+	if (from.path === to.path) {
 		loadingBar.finish();
 		return;
 	}
@@ -50,14 +54,13 @@ router.beforeEach((to, from) => {
 <template>
 	<n-flex vertical>
 		<RouterLink v-for="(router) in routers" :to="router.to" :title="router.title" :key="router.to"
-			class="router-item">
-			<div
-				style="display: flex; align-items: center; justify-content: center; grid-column: 1 / 2; grid-row: 1 / 2">
+			:class='["router-item", inSamePage(router.to) ? "router-item-active" : ""]'>
+			<div class="router-item-icon">
 				<Icon :size="24">
 					<component :is="router.icon"></component>
 				</Icon>
 			</div>
-			<p style="font-size: 0.6em; grid-column: 2 / 3; grid-row: 1 / 2">{{ router.title }}</p>
+			<p class="router-item-title">{{ router.title }}</p>
 		</RouterLink>
 	</n-flex>
 </template>
@@ -65,7 +68,7 @@ router.beforeEach((to, from) => {
 <style scoped>
 .router-item {
 	--item-height: 3em;
-	--item-width: 9em;
+	--item-width: 10em;
 
 	height: var(--item-height);
 	width: var(--item-width);
@@ -88,5 +91,25 @@ router.beforeEach((to, from) => {
 .router-item:hover {
 	background-color: hsla(160, 100%, 37%, 0.2);
 	cursor: pointer;
+}
+
+.router-item-active {
+	background-color: hsla(160, 100%, 37%, 0.2);
+}
+
+.router-item-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	grid-column: 1 / 2;
+	grid-row: 1 / 2
+}
+
+.router-item-title {
+	grid-column: 2 / 3;
+	grid-row: 1 / 2;
+
+	font-weight: bold;
+	font-size: small;
 }
 </style>

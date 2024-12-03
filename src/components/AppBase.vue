@@ -3,7 +3,7 @@ import RouterBar from "@/router/RouterBar.vue";
 import { useSessionCredentialStore } from "@/stores/session-credential";
 import { useThemeVars } from "naive-ui";
 import router from "@/router";
-import { onMounted, watch, computed, ref } from "vue";
+import { onMounted, watch, computed } from "vue";
 
 const themeVars = useThemeVars();
 const backgroundColour = computed(() => themeVars.value.bodyColor);
@@ -21,25 +21,22 @@ onMounted(async () => {
 	}
 });
 
-const getRouterViewLeft = () => {
+const routerViewColumns = computed(() => {
+	console.log("routerViewLeft: " + router.currentRoute.value.path);
 	if (router.currentRoute.value.path === "/login") {
-		return "0em";
+		console.log("hide router bar");
+		return "1 / 3";
 	}
 	else {
-		return "10em";
+		return "2 / 3";
 	}
-};
-
-const routerViewLeft = ref(getRouterViewLeft());
-watch(router.currentRoute, () => {
-	routerViewLeft.value = getRouterViewLeft();
 });
 </script>
 
 <template>
 	<div class="app">
 		<RouterBar class="router-bar" />
-		<div class="router-view" :style="{ left: routerViewLeft, background: backgroundColour }">
+		<div class="router-view" :style="{ gridColumn: routerViewColumns, background: backgroundColour }">
 			<RouterView style="height: 100%; width: 100%;" v-slot="{ Component }">
 				<Suspense>
 					<div style="width: 100%; height: 100%;">
@@ -53,23 +50,29 @@ watch(router.currentRoute, () => {
 
 <style scoped>
 .app {
-	--margin: 8px;
+	padding: 8px;
 	width: 100%;
 	height: 100%;
+
+	display: grid;
+	grid-template-columns: 10em 1fr;
+	grid-template-rows: 1fr;
+	gap: 8px;
 }
 
 .router-bar {
-	position: absolute;
-	top: var(--margin);
-	bottom: var(--margin);
-	left: var(--margin);
-	width: 8em;
+	grid-column: 1 / 2;
+	grid-row: 1 / 2;
+
+	min-height: 0;
+	min-width: 0;
 }
 
 .router-view {
-	position: absolute;
-	top: var(--margin);
-	bottom: var(--margin);
-	right: var(--margin);
+	grid-column: 2 / 3;
+	grid-row: 1 / 2;
+
+	min-height: 0;
+	min-width: 0;
 }
 </style>

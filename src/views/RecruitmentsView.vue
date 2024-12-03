@@ -353,7 +353,7 @@ onMounted(() => {
 	display: grid;
 	gap: 8px;
 	grid-template-columns: 1fr;
-	grid-template-rows: 1fr 3em;
+	grid-template-rows: 1fr calc(3em + 4px);
 }
 
 .search-result {
