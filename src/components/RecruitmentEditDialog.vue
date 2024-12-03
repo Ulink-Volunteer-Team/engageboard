@@ -59,14 +59,19 @@ const handleConfirm = async () => {
 	const sessionSocket = await useSessionSocket();
 	const sessionCredential = await useSessionCredentialStore();
 
+	showSpin.value = true;
+
 	try {
 		await updateStudentsOfAnEvent(recruitmentRef.value!.id!, participantsRef.value, sessionSocket, sessionCredential);
 		await updateRecruitments([recruitmentRef.value!], sessionSocket, sessionCredential);
-		visible.value = false;
 	}
 	catch (error) {
 		message.error("Errors occurred when trying to update recruitment: " + String(error));
 		console.error(error);
+	}
+	finally {
+		visible.value = false;
+		showSpin.value = false;
 	}
 
 	emit("confirmed");
