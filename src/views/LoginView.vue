@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { NCard, NForm, NFormItem, NInput, NButton, NFlex, useMessage, useLoadingBar } from "naive-ui";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onBeforeMount } from "vue";
 import { useSessionSocket } from "@/stores/session-socket";
 import { useSessionCredentialStore, clearSessionCredential } from "@/stores/session-credential";
 import { login, getTokenState } from "@/utils/server-apis";
@@ -36,30 +36,32 @@ const afterLogin = () => {
 const turnstileSiteKey = ref(__TURNSTILE_KEY__);
 const turnstileRequired = !OnLocalHost();
 
-if (!sessionCredential.logged) {
-	if (sessionCredential.userID && sessionCredential.token) {
-		getTokenState(sessionSocket, sessionCredential)
-			.then((data) => {
-				if (data.valid) {
-					console.log("Login successful, using stored token and user id");
-					afterLogin();
-				}
-				else {
-					message.error("Your login has expired. Please login again.");
-					clearSessionCredential();
-				}
-			})
-			.catch((error) => {
-				message.error("Fail to get token state: " + String(error));
-			});
+onBeforeMount(() => {
+	if (!sessionCredential.logged) {
+		if (sessionCredential.userID && sessionCredential.token) {
+			getTokenState(sessionSocket, sessionCredential)
+				.then((data) => {
+					if (data.valid) {
+						console.log("Login successful, using stored token and user id");
+						afterLogin();
+					}
+					else {
+						message.error("Your login has expired. Please login again.");
+						clearSessionCredential();
+					}
+				})
+				.catch((error) => {
+					message.error("Fail to get token state: " + String(error));
+				});
+		}
+		else if (routerStore.redirect) {
+			message.warning("Please log in first.");
+		}
+	} else {
+		router.push(routerStore.redirect || "/");
+		routerStore.redirect = "";
 	}
-	else if (routerStore.redirect) {
-		message.warning("Please log in first.");
-	}
-} else {
-	router.push(routerStore.redirect || "/");
-	routerStore.redirect = "";
-}
+});
 
 function localLogin() {
 	login(userCredential.value.userName, userCredential.value.password, turnstile_key.value, sessionSocket, sessionCredential)
@@ -97,9 +99,9 @@ onMounted(() => {
 							Login
 						</n-button>
 						<div class="turnstile" v-if="turnstileRequired">
-						<vue-turnstile :site-key="turnstileSiteKey" v-model="turnstile_key"
-							@error="message.error('Turnstile check failed')"
-							@unsupported="message.error('Please switch a browser.')" />
+							<vue-turnstile :site-key="turnstileSiteKey" v-model="turnstile_key"
+								@error="message.error('Turnstile check failed')"
+								@unsupported="message.error('Please switch a browser.')" />
 						</div>
 
 					</n-flex>
