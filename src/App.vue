@@ -1,19 +1,9 @@
 <script setup lang="ts">
 import { NConfigProvider, NMessageProvider, NDialogProvider, NModalProvider, NLoadingBarProvider, useOsTheme, lightTheme, darkTheme } from "naive-ui";
-import { useSessionCredentialStore } from "@/stores/session-credential";
-import router from "./router";
-import { onMounted, computed } from "vue";
+import { computed } from "vue";
 import AppBase from "./components/AppBase.vue";
 
 const theme = computed(() => ((useOsTheme().value === "dark") ? darkTheme : lightTheme));
-
-onMounted(async () => {
-	const sessionCredentialStore = await useSessionCredentialStore();
-
-	if (!sessionCredentialStore.logged) {
-		router.push("/login");
-	}
-});
 </script>
 
 <template>

@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import RouterBar from "@/router/RouterBar.vue";
-import { useSessionCredentialStore } from "@/stores/session-credential";
 import { useThemeVars } from "naive-ui";
 import router from "@/router";
-import { onMounted, watch, computed } from "vue";
+import { watch, computed } from "vue";
 
 const themeVars = useThemeVars();
 const backgroundColour = computed(() => themeVars.value.bodyColor);
@@ -12,17 +11,7 @@ watch(backgroundColour, () => {
 });
 document.body.style.backgroundColor = backgroundColour.value;
 
-
-onMounted(async () => {
-	const sessionCredentialStore = await useSessionCredentialStore();
-
-	if (!sessionCredentialStore.logged) {
-		router.push("/login");
-	}
-});
-
 const routerViewColumns = computed(() => {
-	console.log("routerViewLeft: " + router.currentRoute.value.path);
 	if (router.currentRoute.value.path === "/login") {
 		console.log("hide router bar");
 		return "1 / 3";
