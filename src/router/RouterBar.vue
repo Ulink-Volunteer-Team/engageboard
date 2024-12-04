@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Icon } from "@vicons/utils";
 import { DashboardRound/*, LogInRound*/, AccountBoxRound, EventNoteRound } from "@vicons/material";
+import { LogoGithub } from "@vicons/carbon";
 import { NFlex, useLoadingBar } from "naive-ui";
 import { RouterLink, useRouter } from 'vue-router';
 import { type Component } from "vue";
@@ -42,6 +43,19 @@ const routers: RouterItemType[] = [
 	},
 ];
 
+const routerLinks: RouterItemType[] = [
+	{
+		icon: LogoGithub,
+		to: "https://github.com/Ulink-Volunteer-Team/engageboard",
+		title: "Github Repo",
+	},
+	{
+		icon: LogoGithub,
+		to: "https://github.com/Ulink-Volunteer-Team/volunstats",
+		title: "VolunStats",
+	},
+];
+
 router.beforeEach((to, from) => {
 	if (from.path === to.path) {
 		loadingBar.finish();
@@ -52,24 +66,46 @@ router.beforeEach((to, from) => {
 </script>
 
 <template>
-	<n-flex vertical>
-		<RouterLink v-for="(router) in routers" :to="router.to" :title="router.title" :key="router.to"
-			:class='["router-item", inSamePage(router.to) ? "router-item-active" : ""]'>
-			<div class="router-item-icon">
-				<Icon :size="24">
-					<component :is="router.icon"></component>
-				</Icon>
-			</div>
-			<p class="router-item-title">{{ router.title }}</p>
-		</RouterLink>
-	</n-flex>
+	<div class="router-bar" :style="{ '--github-links-num': routerLinks.length }">
+		<n-flex vertical style="grid-area: 1 / 1 / 2 / 2;">
+			<RouterLink v-for="(router) in routers" :to="router.to" :title="router.title" :key="router.to"
+				:class='["router-item", inSamePage(router.to) ? "router-item-active" : ""]'>
+				<div class="router-item-icon">
+					<Icon :size="24"><component :is="router.icon" /></Icon>
+				</div>
+				<p class="router-item-title">{{ router.title }}</p>
+			</RouterLink>
+		</n-flex>
+		<n-flex vertical style="grid-area: 2 / 1 / 3 / 2;">
+			<a v-for ="(router) in routerLinks" :key="router.to" :href="router.to" target="_blank" class="router-item" :title="router.title">
+				<div class="router-item-icon">
+					<Icon :size="24"><component :is="router.icon" /></Icon>
+				</div>
+				<p class="router-item-title">{{ router.title }}</p>
+			</a>
+		</n-flex>
+	</div>
 </template>
 
 <style scoped>
-.router-item {
+.router-bar {
 	--item-height: 3em;
 	--item-width: 10em;
+	--hover-color: hsla(160, 100%, 37%, 0.2);
+	--active-color: hsla(160, 100%, 37%, 0.3);
+	--github-links-num: 0;
 
+	width: 100%;
+	height: 100%;
+
+	display: grid;
+
+	grid-template-columns: 1fr;
+	grid-template-rows: auto calc(calc(var(--item-height) * var(--github-links-num)) + calc(8px * calc(var(--github-links-num) - 1)));
+}
+
+
+.router-item {
 	height: var(--item-height);
 	width: var(--item-width);
 
@@ -84,17 +120,17 @@ router.beforeEach((to, from) => {
 
 	text-decoration: none;
 	color: hsla(160, 100%, 37%, 1);
-	transition: 0.4s;
-	padding: 3px;
+	transition: 0.3s;
 }
 
-.router-item:hover {
-	background-color: hsla(160, 100%, 37%, 0.2);
+.router-item:hover:not(.router-item-active) {
+	background-color: var(--hover-color);
 	cursor: pointer;
 }
 
 .router-item-active {
-	background-color: hsla(160, 100%, 37%, 0.2);
+	background-color: var(--active-color);
+	box-shadow: 0 0 16px -8px var(--active-color);
 }
 
 .router-item-icon {
@@ -111,5 +147,9 @@ router.beforeEach((to, from) => {
 
 	font-weight: bold;
 	font-size: small;
+
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 </style>

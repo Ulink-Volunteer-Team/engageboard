@@ -13,6 +13,7 @@
     "lint": "eslint . --fix"
   },
   "dependencies": {
+    "@vicons/carbon": "^0.12.0",
     "axios": "^1.7.8",
     "crypto-js": "^4.2.0",
     "localforage": "^1.10.0",
